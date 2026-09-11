@@ -368,7 +368,7 @@ private fun MpinStepperHeader(currentStep: MpinStep) {
                             when {
                                 isCompleted -> UnitedSuccess
                                 isCurrent -> UnitedMoneyBlue
-                                else -> Color(0xFFE2E8F0)
+                                else -> UnitedBorderLight
                             }
                         ),
                     contentAlignment = Alignment.Center

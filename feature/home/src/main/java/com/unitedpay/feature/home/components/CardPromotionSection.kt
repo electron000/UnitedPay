@@ -161,7 +161,7 @@ fun CardPromotionSection(
                                 )
                             )
                         )
-                        .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(18.dp))
+                        .border(1.dp, UnitedBorderLight, RoundedCornerShape(18.dp))
                         .padding(18.dp)
                 ) {
                     Column {
@@ -188,7 +188,7 @@ fun CardPromotionSection(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 2.sp,
                             fontFamily = FontFamily.Monospace,
-                            color = Color(0xFF0F172A)
+                            color = UnitedTextPrimary
                         )
 
                         Spacer(modifier = Modifier.height(14.dp))
@@ -213,7 +213,7 @@ fun CardPromotionSection(
                                     text = "ARUNJYOTI CHANGKAKOTY",
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF0F172A),
+                                    color = UnitedTextPrimary,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -230,7 +230,7 @@ fun CardPromotionSection(
                                     text = "08/26",
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF0F172A)
+                                    color = UnitedTextPrimary
                                 )
                             }
 

@@ -188,7 +188,7 @@ fun CardsScreen(
                             .background(
                                 brush = Brush.linearGradient(
                                     colors = if (isCardFrozen) {
-                                        listOf(Color(0xFF94A3B8), Color(0xFF64748B), Color(0xFF475569))
+                                        listOf(Color(0xFF94A3B8), UnitedTextSecondary, Color(0xFF475569))
                                     } else {
                                         listOf(
                                             Color(0xFFFFFFFF),
@@ -229,7 +229,7 @@ fun CardsScreen(
                                         text = ")))",
                                         fontSize = 18.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF0F172A)
+                                        color = UnitedTextPrimary
                                     )
                                 }
                             }
@@ -242,7 +242,7 @@ fun CardsScreen(
                                 fontWeight = FontWeight.Bold,
                                 letterSpacing = 1.8.sp,
                                 fontFamily = FontFamily.Monospace,
-                                color = Color(0xFF0F172A),
+                                color = UnitedTextPrimary,
                                 maxLines = 1
                             )
 
@@ -266,7 +266,7 @@ fun CardsScreen(
                                         text = cardDetails.validThru,
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF0F172A)
+                                        color = UnitedTextPrimary
                                     )
                                 }
 
@@ -284,7 +284,7 @@ fun CardsScreen(
                                         text = if (isCvvVisible) cardDetails.cvv else "•••",
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF0F172A)
+                                        color = UnitedTextPrimary
                                     )
                                 }
                             }
@@ -313,7 +313,7 @@ fun CardsScreen(
                                         text = userProfile.userName.uppercase(),
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF0F172A),
+                                        color = UnitedTextPrimary,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
