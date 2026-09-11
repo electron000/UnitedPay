@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Completely disable cleartext (HTTP) across the entire application -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- Domain-specific strict SSL pinning -->
+    <domain-config>
+        <domain includeSubdomains="true">api.unitedpay.in</domain>
+        <pin-set expiration="2027-01-01">
+            <pin digest="SHA-256">k20YW5tYRZp6l7K98z9YkL/2qM3X1Vw+J8w9Xz2X6Y4=</pin>
+            <pin digest="SHA-256">WoiWRyIOVNa9ihaBciRSC7XHjliYS9VwUGOIud4PB18=</pin>
+        </pin-set>
+    </domain-config>
+</network-security-config>
