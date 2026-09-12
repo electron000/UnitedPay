@@ -10,14 +10,9 @@ import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.Typeface
 import android.net.Uri
-import com.unitedpay.core.designsystem.components.UnitedToast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.core.content.FileProvider
-import java.io.File
-import java.io.FileOutputStream
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -39,23 +34,29 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.unitedpay.core.common.extensions.toInrCurrency
+import androidx.core.content.FileProvider
+import com.unitedpay.core.designsystem.components.UnitedToast
 import com.unitedpay.core.designsystem.theme.*
-import com.unitedpay.core.model.PaymentStatus
 import com.unitedpay.core.model.TransactionRepository
 import com.unitedpay.core.model.TransactionType
 import com.unitedpay.core.model.UpiTransaction
 import com.unitedpay.core.model.mock.UnitedMockData
+import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 /**
- * Authentic Google Pay-style Transaction Detail Screen.
- * Displays bank-grade verification status, full UPI transaction metadata,
- * one-tap UTR / reference copy, and native Android system share sheet invocation.
+ * Authentic Tier-1 UPI Transaction Detail Screen matching Image 3 (media_1789196510463.jpg):
+ * - Hero Status Header with circular green checkmark badge & large bold amount
+ * - Outlined "Share receipt" and filled "Pay again" action buttons
+ * - Detailed "TRANSACTION DETAILS" card with copyable UTR & Transaction ID
+ * - Full-screen branded receipt image generation & sharing via native Android intent
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,7 +77,7 @@ fun TransactionDetailScreen(
     val formattedDate = remember(transaction.timestamp) { dateFormat.format(Date(transaction.timestamp)) }
 
     Scaffold(
-        containerColor = UnitedBackgroundLight,
+        containerColor = Color(0xFFF4F6FB),
         topBar = {
             TopAppBar(
                 title = {
@@ -122,47 +123,49 @@ fun TransactionDetailScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            // 1. Hero Status Header (GPay style)
+            // 1. Hero Status Header (Circular Green Checkmark Badge)
             Box(
                 modifier = Modifier
-                    .size(64.dp)
+                    .size(68.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFE6F4EA)),
+                    .background(Color(0xFFE8F5E9)),
                 contentAlignment = Alignment.Center
             ) {
                 Box(
                     modifier = Modifier
-                        .size(44.dp)
+                        .size(46.dp)
                         .clip(CircleShape)
-                        .background(UnitedSuccess),
+                        .background(Color(0xFF00C853)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = "Payment Successful",
                         tint = UnitedWhite,
-                        modifier = Modifier.size(26.dp)
+                        modifier = Modifier.size(28.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = if (isDebit) "Paid to ${transaction.payeeName}" else "Received from ${transaction.payeeName}",
                 fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
-                color = UnitedTextPrimary
+                fontSize = 19.sp,
+                color = UnitedTextPrimary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 8.dp)
             )
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = "₹${String.format(Locale.getDefault(), "%,.2f", transaction.amount)}",
                 fontWeight = FontWeight.ExtraBold,
-                fontSize = 34.sp,
+                fontSize = 36.sp,
                 color = UnitedTextPrimary
             )
 
@@ -172,19 +175,19 @@ fun TransactionDetailScreen(
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
-                    tint = UnitedSuccess,
-                    modifier = Modifier.size(14.dp)
+                    tint = Color(0xFF00C853),
+                    modifier = Modifier.size(15.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = "Completed • $formattedDate",
-                    fontSize = 12.sp,
+                    fontSize = 12.5.sp,
                     color = UnitedTextSecondary,
                     fontWeight = FontWeight.Medium
                 )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(22.dp))
 
             // 2. Action Buttons (Share receipt & Pay again)
             Row(
@@ -196,10 +199,10 @@ fun TransactionDetailScreen(
                     onClick = { shareTransactionReceipt(context, transaction) },
                     modifier = Modifier
                         .weight(1f)
-                        .height(44.dp),
-                    shape = RoundedCornerShape(8.dp),
+                        .height(46.dp),
+                    shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = UnitedMoneyBlue),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, UnitedMoneyBlue)
+                    border = androidx.compose.foundation.BorderStroke(1.25.dp, UnitedMoneyBlue)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Share,
@@ -211,10 +214,9 @@ fun TransactionDetailScreen(
                     Text(
                         text = "Share receipt",
                         fontWeight = FontWeight.SemiBold,
-                        fontSize = 13.sp,
+                        fontSize = 13.5.sp,
                         maxLines = 1,
-                        softWrap = false,
-                        overflow = TextOverflow.Ellipsis
+                        softWrap = false
                     )
                 }
 
@@ -223,8 +225,8 @@ fun TransactionDetailScreen(
                     onClick = { onPayAgain(transaction) },
                     modifier = Modifier
                         .weight(1f)
-                        .height(44.dp),
-                    shape = RoundedCornerShape(8.dp),
+                        .height(46.dp),
+                    shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = UnitedMoneyBlue,
                         contentColor = UnitedWhite
@@ -240,10 +242,9 @@ fun TransactionDetailScreen(
                     Text(
                         text = "Pay again",
                         fontWeight = FontWeight.SemiBold,
-                        fontSize = 13.sp,
+                        fontSize = 13.5.sp,
                         maxLines = 1,
-                        softWrap = false,
-                        overflow = TextOverflow.Ellipsis
+                        softWrap = false
                     )
                 }
             }
@@ -253,24 +254,25 @@ fun TransactionDetailScreen(
             // 3. Detailed Transaction Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = UnitedWhite),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.5.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp))
                         .padding(18.dp)
                 ) {
                     Text(
                         text = "TRANSACTION DETAILS",
-                        fontSize = 11.sp,
+                        fontSize = 11.5.sp,
                         fontWeight = FontWeight.Bold,
                         color = UnitedTextSecondary,
                         letterSpacing = 1.sp
                     )
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     // To
                     DetailRow(
@@ -333,12 +335,12 @@ fun TransactionDetailScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // 4. Regulatory & Security Trust Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(14.dp),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFF8FAFD)),
                 border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0))
             ) {
@@ -351,7 +353,7 @@ fun TransactionDetailScreen(
                     Icon(
                         imageVector = Icons.Default.Security,
                         contentDescription = null,
-                        tint = UnitedSuccess,
+                        tint = Color(0xFF00C853),
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(10.dp))
@@ -368,7 +370,7 @@ fun TransactionDetailScreen(
 
             Text(
                 text = "Having issues with this payment? Dispute Center",
-                fontSize = 12.sp,
+                fontSize = 12.5.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = UnitedMoneyBlue,
                 modifier = Modifier
@@ -378,7 +380,7 @@ fun TransactionDetailScreen(
                     .padding(8.dp)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
@@ -392,15 +394,17 @@ private fun DetailRow(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Top
     ) {
         Text(
             text = label,
-            fontSize = 12.sp,
+            fontSize = 12.5.sp,
             color = UnitedTextSecondary,
-            modifier = Modifier.width(100.dp)
+            fontWeight = FontWeight.Normal,
+            modifier = Modifier.width(105.dp)
         )
+
+        Spacer(modifier = Modifier.width(8.dp))
 
         Row(
             modifier = Modifier.weight(1f),
@@ -410,9 +414,11 @@ private fun DetailRow(
             Text(
                 text = value,
                 fontSize = 13.sp,
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.SemiBold,
                 color = UnitedTextPrimary,
-                lineHeight = 18.sp
+                textAlign = TextAlign.End,
+                lineHeight = 18.sp,
+                modifier = Modifier.weight(1f, fill = false)
             )
 
             if (showCopy) {
@@ -425,7 +431,7 @@ private fun DetailRow(
                         imageVector = Icons.Default.ContentCopy,
                         contentDescription = "Copy",
                         tint = UnitedMoneyBlue,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(15.dp)
                     )
                 }
             }
@@ -433,9 +439,6 @@ private fun DetailRow(
     }
 }
 
-/**
- * Copies string data to clipboard and shows an instant toast.
- */
 private fun copyToClipboard(context: Context, label: String, text: String) {
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     val clip = ClipData.newPlainText(label, text)
@@ -444,48 +447,49 @@ private fun copyToClipboard(context: Context, label: String, text: String) {
 }
 
 /**
- * Generates an executive, high-resolution Google Pay-style receipt bitmap and stores it in cache.
+ * Generates an executive, high-resolution 1080p full receipt card bitmap and stores it in cache.
  * Returns the secure content Uri via FileProvider.
  */
 private fun generateReceiptImage(context: Context, transaction: UpiTransaction): Uri? {
     return try {
         val width = 1080
-        val height = 1500
+        val height = 1620
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
 
-        // Canvas Background
-        canvas.drawColor(android.graphics.Color.parseColor("#F4F7FC"))
+        // Canvas Background (Soft clean gradient)
+        canvas.drawColor(android.graphics.Color.parseColor("#F4F6FB"))
 
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-        // Main White Card
-        val cardRect = RectF(60f, 60f, 1020f, 1440f)
+        // Main White Card with soft rounded corners
+        val cardRect = RectF(50f, 50f, 1030f, 1570f)
         paint.color = android.graphics.Color.WHITE
         paint.style = Paint.Style.FILL
-        canvas.drawRoundRect(cardRect, 32f, 32f, paint)
+        canvas.drawRoundRect(cardRect, 36f, 36f, paint)
 
-        // Top Brand Header Banner (United Logo 'U' Blue)
-        paint.color = android.graphics.Color.parseColor("#0078DF")
-        val headerRect = RectF(60f, 60f, 1020f, 220f)
-        canvas.drawRoundRect(headerRect, 32f, 32f, paint)
-        val headerFill = RectF(60f, 160f, 1020f, 220f)
+        // Top Brand Header Banner (United Blue)
+        paint.color = android.graphics.Color.parseColor("#002970")
+        val headerRect = RectF(50f, 50f, 1030f, 220f)
+        canvas.drawRoundRect(headerRect, 36f, 36f, paint)
+        val headerFill = RectF(50f, 150f, 1030f, 220f)
         canvas.drawRect(headerFill, paint)
 
-        // Brand Title
+        // Brand Title & Subtitle
         paint.color = android.graphics.Color.WHITE
-        paint.textSize = 40f
+        paint.textSize = 42f
         paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         paint.textAlign = Paint.Align.CENTER
-        canvas.drawText("UNITED PAY", 540f, 135f, paint)
+        canvas.drawText("UNITED PAY", 540f, 130f, paint)
 
         paint.textSize = 22f
         paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-        canvas.drawText("INSTANT UPI PAYMENT RECEIPT", 540f, 180f, paint)
+        paint.color = android.graphics.Color.parseColor("#93C5FD")
+        canvas.drawText("INSTANT UPI PAYMENT RECEIPT", 540f, 175f, paint)
 
         // Green Success Badge
         paint.color = android.graphics.Color.parseColor("#00C853")
-        canvas.drawCircle(540f, 330f, 60f, paint)
+        canvas.drawCircle(540f, 330f, 58f, paint)
 
         // White Checkmark
         paint.color = android.graphics.Color.WHITE
@@ -521,7 +525,7 @@ private fun generateReceiptImage(context: Context, transaction: UpiTransaction):
         // Divider Line
         paint.color = android.graphics.Color.parseColor("#E2E8F0")
         paint.strokeWidth = 2f
-        canvas.drawLine(120f, 650f, 960f, 650f, paint)
+        canvas.drawLine(100f, 650f, 980f, 650f, paint)
 
         // Details Key-Value Table
         val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
@@ -534,51 +538,52 @@ private fun generateReceiptImage(context: Context, transaction: UpiTransaction):
             "Date & Time" to formattedDate
         )
 
-        var yOffset = 715f
+        var yOffset = 720f
         for ((key, value) in details) {
             paint.style = Paint.Style.FILL
             paint.textAlign = Paint.Align.LEFT
             paint.color = android.graphics.Color.parseColor("#64748B")
             paint.textSize = 26f
             paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-            canvas.drawText(key, 120f, yOffset, paint)
+            canvas.drawText(key, 100f, yOffset, paint)
 
             paint.textAlign = Paint.Align.RIGHT
             paint.color = android.graphics.Color.parseColor("#0F172A")
             paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-            val truncatedVal = if (value.length > 28) value.take(25) + "..." else value
-            canvas.drawText(truncatedVal, 960f, yOffset, paint)
+            val truncatedVal = if (value.length > 30) value.take(28) + "..." else value
+            canvas.drawText(truncatedVal, 980f, yOffset, paint)
 
-            yOffset += 70f
+            yOffset += 72f
         }
 
         if (!transaction.note.isNullOrBlank()) {
             paint.textAlign = Paint.Align.LEFT
             paint.color = android.graphics.Color.parseColor("#64748B")
             paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-            canvas.drawText("Note", 120f, yOffset, paint)
+            canvas.drawText("Note", 100f, yOffset, paint)
 
             paint.textAlign = Paint.Align.RIGHT
             paint.color = android.graphics.Color.parseColor("#0F172A")
             paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-            canvas.drawText(transaction.note.orEmpty(), 960f, yOffset, paint)
-            yOffset += 70f
+            val truncatedNote = if (transaction.note.orEmpty().length > 30) transaction.note.orEmpty().take(28) + "..." else transaction.note.orEmpty()
+            canvas.drawText(truncatedNote, 980f, yOffset, paint)
+            yOffset += 72f
         }
 
         // Bottom Divider
-        canvas.drawLine(120f, yOffset + 15f, 960f, yOffset + 15f, paint)
+        canvas.drawLine(100f, yOffset + 20f, 980f, yOffset + 20f, paint)
 
         // Regulatory & Trust Footer
         paint.textAlign = Paint.Align.CENTER
         paint.color = android.graphics.Color.parseColor("#0078DF")
         paint.textSize = 24f
         paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-        canvas.drawText("NPCI & RBI REGULATED • 256-BIT SSL SECURED", 540f, yOffset + 70f, paint)
+        canvas.drawText("NPCI & RBI REGULATED • 256-BIT ENCRYPTION SECURED", 540f, yOffset + 80f, paint)
 
         paint.color = android.graphics.Color.parseColor("#94A3B8")
         paint.textSize = 20f
         paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-        canvas.drawText("United Pay — North East's Trusted Fintech Platform", 540f, yOffset + 105f, paint)
+        canvas.drawText("United Pay — North East's Trusted Fintech Platform", 540f, yOffset + 115f, paint)
 
         // Save Bitmap to Cache
         val receiptsDir = File(context.cacheDir, "receipts").apply { mkdirs() }
@@ -601,7 +606,7 @@ private fun generateReceiptImage(context: Context, transaction: UpiTransaction):
 
 /**
  * Opens Android's native system sharing intent with complete formatted transaction receipt
- * as both a visual receipt image and formatted plain text.
+ * as both a visual high-resolution receipt image and formatted plain text.
  */
 fun shareTransactionReceipt(context: Context, transaction: UpiTransaction) {
     val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())

@@ -1,6 +1,7 @@
 package com.unitedpay.feature.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -52,6 +53,7 @@ import com.unitedpay.core.designsystem.theme.UnitedSagePill
 import com.unitedpay.core.designsystem.theme.UnitedWhite
 import com.unitedpay.feature.home.components.CardPromotionSection
 import com.unitedpay.feature.home.components.MoneyControlSection
+import com.unitedpay.feature.home.components.ProfileDrawer
 import com.unitedpay.feature.home.components.QuickActionsGrid
 import com.unitedpay.feature.home.components.RegionalPromoBanner
 
@@ -95,6 +97,7 @@ fun HomeScreen(
     onNavigateToNotifications: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var isProfileDrawerOpen by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -110,7 +113,7 @@ fun HomeScreen(
                     onNavigateCards = onNavigateToCards,
                     onNavigateScan = onNavigateToScan,
                     onNavigateHistory = onNavigateToPassbook,
-                    onNavigateProfile = onNavigateToProfile
+                    onNavigateServices = onNavigateToAllServices
                 )
             }
         ) { innerPadding ->
@@ -126,7 +129,7 @@ fun HomeScreen(
                     HeaderGradientSection(
                         userName = uiState.userName.ifBlank { com.unitedpay.core.model.session.UserSessionManager.getCurrentProfile().userName },
                         onPayToContactClick = { onNavigateToPayment("") },
-                        onMenuClick = onNavigateToProfile,
+                        onMenuClick = { isProfileDrawerOpen = true },
                         onMessagesClick = onNavigateToMessages,
                         onNotificationsClick = onNavigateToNotifications
                     )
@@ -210,6 +213,17 @@ fun HomeScreen(
                 }
             }
         }
+
+        // Paytm-Style Slide-over Profile & Dynamic QR Drawer
+        ProfileDrawer(
+            isOpen = isProfileDrawerOpen,
+            onDismiss = { isProfileDrawerOpen = false },
+            onNavigateChangeMpin = onNavigateToProfile,
+            onNavigateBiometrics = onNavigateToProfile,
+            onNavigateSoundbox = onNavigateToProfile,
+            onNavigateDispute = onNavigateToProfile,
+            onNavigateMyQr = onNavigateToProfile
+        )
     }
 }
 
@@ -237,13 +251,26 @@ private fun HeaderGradientSection(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Left 4-Square Grid Icon (navigates to Profile/Settings)
-                IconButton(onClick = onMenuClick) {
-                    Icon(
-                        imageVector = Icons.Default.GridView,
-                        contentDescription = "Menu / Profile",
-                        tint = UnitedWhite,
-                        modifier = Modifier.size(28.dp)
+                // Left User Profile Avatar (Opens Paytm-style Slide-over Profile & QR Drawer)
+                Box(
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(CircleShape)
+                        .background(UnitedWhite.copy(alpha = 0.22f))
+                        .border(1.5.dp, UnitedWhite.copy(alpha = 0.70f), CircleShape)
+                        .clickable(onClick = onMenuClick),
+                    contentAlignment = Alignment.Center
+                ) {
+                    val initials = userName.split(" ")
+                        .mapNotNull { it.firstOrNull()?.toString() }
+                        .take(2)
+                        .joinToString("")
+                        .ifEmpty { "AC" }
+                    Text(
+                        text = initials,
+                        color = UnitedWhite,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.ExtraBold
                     )
                 }
 

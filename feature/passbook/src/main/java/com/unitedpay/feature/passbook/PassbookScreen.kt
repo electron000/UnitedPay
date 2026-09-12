@@ -40,9 +40,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -70,7 +72,8 @@ fun PassbookScreen(
     onNavigateHome: () -> Unit = {},
     onNavigateCards: () -> Unit = {},
     onNavigateScan: () -> Unit = {},
-    onNavigateProfile: () -> Unit = {}
+    onNavigateServices: () -> Unit = {},
+    onNavigateProfile: () -> Unit = onNavigateServices
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -108,7 +111,7 @@ fun PassbookScreen(
                 onNavigateCards = onNavigateCards,
                 onNavigateScan = onNavigateScan,
                 onNavigateHistory = {},
-                onNavigateProfile = onNavigateProfile
+                onNavigateServices = onNavigateServices
             )
         }
     ) { padding ->
@@ -160,69 +163,85 @@ private fun TransactionRowItem(
     onClick: () -> Unit
 ) {
     val isDebit = transaction.type == TransactionType.DEBIT
-    val dateFormat = SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault())
-    val formattedDate = dateFormat.format(Date(transaction.timestamp))
+    val dateFormat = remember { SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault()) }
+    val formattedDate = remember(transaction.timestamp) { dateFormat.format(Date(transaction.timestamp)) }
 
-    UnitedGlassCard(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        cornerRadius = 14.dp,
-        elevation = 2.dp
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = UnitedWhite),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp))
+                .padding(horizontal = 14.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(42.dp)
-                        .clip(CircleShape)
-                        .background(if (isDebit) Color(0xFFFEE2E2) else Color(0xFFDCFCE7)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = if (isDebit) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
-                        contentDescription = null,
-                        tint = if (isDebit) Color(0xFFDC2626) else UnitedSuccess,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(12.dp))
-
-                Column {
-                    Text(
-                        text = transaction.payeeName,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 14.sp,
-                        color = UnitedTextPrimary
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = formattedDate,
-                        fontSize = 11.sp,
-                        color = UnitedTextSecondary
-                    )
-                }
+            // Direction Icon
+            Box(
+                modifier = Modifier
+                    .size(42.dp)
+                    .clip(CircleShape)
+                    .background(if (isDebit) Color(0xFFFEE2E2) else Color(0xFFDCFCE7)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = if (isDebit) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+                    contentDescription = null,
+                    tint = if (isDebit) Color(0xFFDC2626) else UnitedSuccess,
+                    modifier = Modifier.size(20.dp)
+                )
             }
 
-            Column(horizontalAlignment = Alignment.End) {
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Payee Title & Date (WEIGHTED 1f, maxLines = 1, ellipsis so it NEVER crushes amount!)
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = transaction.payeeName,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 14.5.sp,
+                    color = UnitedTextPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(3.dp))
+                Text(
+                    text = formattedDate,
+                    fontSize = 11.5.sp,
+                    color = UnitedTextSecondary,
+                    maxLines = 1
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Amount & UTR (Unconstrained natural width, right aligned, NEVER wraps!)
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.Center
+            ) {
                 Text(
                     text = "${if (isDebit) "-" else "+"}${transaction.amount.toInrCurrency()}",
                     fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp,
-                    color = if (isDebit) UnitedTextPrimary else UnitedSuccess
+                    fontSize = 15.5.sp,
+                    color = if (isDebit) UnitedTextPrimary else UnitedSuccess,
+                    maxLines = 1,
+                    softWrap = false
                 )
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(3.dp))
                 Text(
                     text = "UTR: ${transaction.utrNumber.takeLast(4)}",
-                    fontSize = 10.sp,
-                    color = UnitedTextSecondary
+                    fontSize = 10.5.sp,
+                    color = UnitedTextSecondary,
+                    maxLines = 1
                 )
             }
         }

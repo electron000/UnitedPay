@@ -251,8 +251,8 @@ fun AppNavGraph(
                         launchSingleTop = true
                     }
                 },
-                onNavigateProfile = {
-                    navController.navigate(Screen.Profile.route) {
+                onNavigateServices = {
+                    navController.navigate(Screen.AllServices.route) {
                         launchSingleTop = true
                     }
                 },
@@ -313,8 +313,8 @@ fun AppNavGraph(
                     }
                 },
                 onNavigateScan = { navController.navigate(Screen.QrScanner.route) },
-                onNavigateProfile = {
-                    navController.navigate(Screen.Profile.route) {
+                onNavigateServices = {
+                    navController.navigate(Screen.AllServices.route) {
                         launchSingleTop = true
                     }
                 }
@@ -363,16 +363,32 @@ fun AppNavGraph(
             )
         }
 
-        // "More" Services Hub Page (20+ features)
+        // Tab 5: "More" Services Hub Page (20+ features)
         composable(Screen.AllServices.route) {
             AllServicesScreen(
                 onBackClick = { navController.popBackStack() },
+                onNavigateHome = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                },
+                onNavigateCards = {
+                    navController.navigate(Screen.Cards.route) {
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateScan = { navController.navigate(Screen.QrScanner.route) },
+                onNavigateHistory = {
+                    navController.navigate(Screen.Passbook.route) {
+                        launchSingleTop = true
+                    }
+                },
                 onServiceClick = { svcId ->
                     when (svcId) {
                         "recharge" -> navController.navigate(Screen.Recharge.route)
                         "electricity" -> navController.navigate(Screen.Electricity.route)
                         "dth" -> navController.navigate(Screen.Dth.route)
-                        "credit_card_bill" -> navController.navigate(Screen.CreditCard.route)
+                        "credit_card_bill", "pay_later" -> navController.navigate(Screen.CreditCard.route)
                         "bank_transfer" -> navController.navigate(Screen.BankTransfer.route)
                         "self_transfer" -> navController.navigate(Screen.SelfTransfer.route)
                         "add_money" -> navController.navigate(Screen.AddMoney.route)
@@ -388,9 +404,11 @@ fun AppNavGraph(
                         "loan_emi" -> navController.navigate(Screen.LoanEmi.route)
                         "insurance" -> navController.navigate(Screen.Insurance.route)
                         "digital_gold" -> navController.navigate(Screen.DigitalGold.route)
-                        "mutual_funds" -> navController.navigate(Screen.MutualFunds.route)
-                        "metro" -> navController.navigate(Screen.Metro.route)
+                        "mutual_funds", "stocks" -> navController.navigate(Screen.MutualFunds.route)
+                        "metro", "train", "flight", "bus", "hotels", "movie" -> navController.navigate(Screen.Metro.route)
                         "municipal_tax" -> navController.navigate(Screen.MunicipalTax.route)
+                        "offers" -> navController.navigate(Screen.Offers.route)
+                        "rewards", "refer" -> navController.navigate(Screen.Rewards.route)
                         else -> navController.navigate(Screen.Recharge.route)
                     }
                 }

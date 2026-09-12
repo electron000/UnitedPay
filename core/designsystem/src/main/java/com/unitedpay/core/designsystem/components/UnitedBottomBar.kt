@@ -102,9 +102,12 @@ fun UnitedBottomBar(
     onNavigateCards: () -> Unit,
     onNavigateScan: () -> Unit,
     onNavigateHistory: () -> Unit,
-    onNavigateProfile: () -> Unit,
+    onNavigateServices: () -> Unit = {},
+    onNavigateProfile: () -> Unit = onNavigateServices,
     modifier: Modifier = Modifier
 ) {
+    val handleServicesClick = if (onNavigateServices != {}) onNavigateServices else onNavigateProfile
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -159,21 +162,22 @@ fun UnitedBottomBar(
                 BottomNavItem(
                     icon = UnitedIcons.History,
                     label = "History",
-                    isSelected = currentRoute == "history",
+                    isSelected = currentRoute == "history" || currentRoute == "passbook",
                     onClick = onNavigateHistory,
                     modifier = Modifier.weight(1f)
                 )
 
-                // 5. Profile Tab
+                // 5. Services Hub Tab (Recharges, Bill Payments, Travel, Utilities, Wealth)
                 BottomNavItem(
-                    icon = Icons.Default.Person,
-                    label = "Profile",
-                    isSelected = currentRoute == "profile",
-                    onClick = onNavigateProfile,
+                    icon = UnitedIcons.ServicesHub,
+                    label = "Services",
+                    isSelected = currentRoute == "services" || currentRoute == "all_services",
+                    onClick = handleServicesClick,
                     modifier = Modifier.weight(1f)
                 )
             }
         }
+
 
         // Elevated Center Scanner Button (Cradled in Center with Glowing Halo)
         Box(

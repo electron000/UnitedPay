@@ -80,7 +80,8 @@ fun CardsScreen(
     onNavigateHome: () -> Unit,
     onNavigateScan: () -> Unit,
     onNavigateHistory: () -> Unit,
-    onNavigateProfile: () -> Unit,
+    onNavigateServices: () -> Unit = {},
+    onNavigateProfile: () -> Unit = onNavigateServices,
     onAddNewCard: () -> Unit = {},
     onCardLimitsClick: () -> Unit = {},
     onResetPinClick: () -> Unit = {}
@@ -119,7 +120,7 @@ fun CardsScreen(
                 onNavigateCards = {},
                 onNavigateScan = onNavigateScan,
                 onNavigateHistory = onNavigateHistory,
-                onNavigateProfile = onNavigateProfile
+                onNavigateServices = onNavigateServices
             )
         }
     ) { innerPadding ->

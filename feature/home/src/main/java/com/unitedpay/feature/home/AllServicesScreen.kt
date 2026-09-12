@@ -3,139 +3,136 @@ package com.unitedpay.feature.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.ReceiptLong
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.unitedpay.core.designsystem.components.UnitedBottomBar
 import com.unitedpay.core.designsystem.components.UnitedIcons
-import com.unitedpay.core.designsystem.components.UnitedPayLogo
-import com.unitedpay.core.designsystem.components.UnitedSearchField
-import com.unitedpay.core.designsystem.theme.UnitedBorderLight
-import com.unitedpay.core.designsystem.theme.UnitedCanvasLight
-import com.unitedpay.core.designsystem.theme.UnitedMoneyBlue
-import com.unitedpay.core.designsystem.theme.UnitedTextPrimary
-import com.unitedpay.core.designsystem.theme.UnitedTextSecondary
-import com.unitedpay.core.designsystem.theme.UnitedWhite
+import com.unitedpay.core.designsystem.components.UnitedToast
+import com.unitedpay.core.designsystem.theme.*
 
-data class FintechService(
+data class ServiceItem(
     val id: String,
     val title: String,
     val category: String,
     val icon: ImageVector,
+    val tint: Color = Color(0xFF0078DF),
     val badge: String? = null
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
+/**
+ * All Services & Utilities Hub matching the Paytm/PhonePe reference layout in media_1789196486960.jpg:
+ * - Floating pill search bar ("Search For Brands" with mic & BETA tag)
+ * - 4-column rounded white card sections (Popular Services, Recharge & Bills, Travel & Tickets, Banking, Wealth)
+ * - Clean direct vector icons without circular blob borders
+ * - Persistent Bottom Bar with active "Services" tab
+ */
 @Composable
 fun AllServicesScreen(
     onBackClick: () -> Unit,
-    onServiceClick: (String) -> Unit
+    onServiceClick: (String) -> Unit,
+    onNavigateHome: () -> Unit = onBackClick,
+    onNavigateCards: () -> Unit = {},
+    onNavigateScan: () -> Unit = {},
+    onNavigateHistory: () -> Unit = {}
 ) {
     var searchQuery by remember { mutableStateOf("") }
 
-    val allServices = remember {
+    val popularServices = remember {
         listOf(
-            // Recharges & Utilities (8)
-            FintechService("recharge", "Mobile Recharge", "Bills & Recharges", UnitedIcons.Recharge, "Cashback"),
-            FintechService("dth", "DTH / Cable", "Bills & Recharges", UnitedIcons.TvCable),
-            FintechService("electricity", "Electricity Bill", "Bills & Recharges", UnitedIcons.Electricity, "Instant"),
-            FintechService("fastag", "FASTag Toll", "Bills & Recharges", UnitedIcons.Fastag),
-            FintechService("gas", "Piped Gas", "Bills & Recharges", UnitedIcons.Gas),
-            FintechService("water", "Water Bill", "Bills & Recharges", UnitedIcons.Water),
-            FintechService("broadband", "Broadband Wi-Fi", "Bills & Recharges", UnitedIcons.Broadband),
-            FintechService("landline", "Landline Bill", "Bills & Recharges", UnitedIcons.Recharge),
-
-            // Banking & Transfers (8)
-            FintechService("check_balance", "Check Balance", "Banking & Transfers", UnitedIcons.BankTemple),
-            FintechService("self_transfer", "To Self A/C", "Banking & Transfers", UnitedIcons.SelfTransfer, "Zero Fee"),
-            FintechService("bank_transfer", "To Bank A/C", "Banking & Transfers", UnitedIcons.BankTransfer, "IMPS"),
-            FintechService("add_money", "Add Money / Lite", "Banking & Transfers", UnitedIcons.Plus),
-            FintechService("credit_card_bill", "Credit Card Bill", "Banking & Transfers", UnitedIcons.Cards),
-            FintechService("autopay", "UPI Autopay", "Banking & Transfers", UnitedIcons.Autopay),
-            FintechService("loan_emi", "Loan EMI", "Banking & Transfers", UnitedIcons.LoanEmi),
-            FintechService("insurance", "Insurance Premium", "Banking & Transfers", UnitedIcons.Insurance),
-
-            // Investments & Digital Assets (5)
-            FintechService("digital_rupee", "Digital Rupee", "Investments & Wealth", UnitedIcons.Crypto, "RBI e₹"),
-            FintechService("digital_gold", "Digital Gold 24K", "Investments & Wealth", UnitedIcons.DigitalGold, "99.9%"),
-            FintechService("mutual_funds", "Mutual Funds SIP", "Investments & Wealth", UnitedIcons.MutualFunds),
-            FintechService("metro", "Metro QR Ticket", "Investments & Wealth", UnitedIcons.Metro),
-            FintechService("municipal_tax", "Municipal Tax", "Investments & Wealth", UnitedIcons.BankTemple)
+            ServiceItem("metro", "Metro", "Popular Services", UnitedIcons.Metro),
+            ServiceItem("movie", "Movie\nTickets", "Popular Services", UnitedIcons.MovieTicket),
+            ServiceItem("digital_gold", "Save in\nGold", "Popular Services", UnitedIcons.DigitalGold, tint = Color(0xFFD97706)),
+            ServiceItem("train", "Train\nTickets", "Popular Services", UnitedIcons.TrainTicket),
+            ServiceItem("pay_later", "United\nPay Later", "Popular Services", UnitedIcons.PayLater),
+            ServiceItem("stocks", "Stocks", "Popular Services", UnitedIcons.StocksBull),
+            ServiceItem("offers", "Cashback &\nOffers", "Popular Services", UnitedIcons.CashbackTag, badge = "Offers"),
+            ServiceItem("refer", "Refer &\nWin", "Popular Services", UnitedIcons.ReferEarn, badge = "₹100")
         )
     }
 
-    val filteredServices = if (searchQuery.isBlank()) {
-        allServices
-    } else {
-        allServices.filter { it.title.contains(searchQuery, ignoreCase = true) || it.category.contains(searchQuery, ignoreCase = true) }
+    val rechargeAndBills = remember {
+        listOf(
+            ServiceItem("recharge", "Mobile\nRecharge", "Recharge & Bill Payments", UnitedIcons.Recharge),
+            ServiceItem("fastag", "FASTag\nRecharge", "Recharge & Bill Payments", UnitedIcons.Fastag),
+            ServiceItem("electricity", "Electricity\nBill", "Recharge & Bill Payments", UnitedIcons.Electricity),
+            ServiceItem("insurance", "Insurance /\nLIC", "Recharge & Bill Payments", UnitedIcons.Insurance),
+            ServiceItem("dth", "DTH\nRecharge", "Recharge & Bill Payments", UnitedIcons.TvCable),
+            ServiceItem("gas", "Book LPG\nCylinder", "Recharge & Bill Payments", UnitedIcons.GasCylinder),
+            ServiceItem("loan_emi", "Pay Loan\nEMI", "Recharge & Bill Payments", UnitedIcons.LoanEmi),
+            ServiceItem("all_bills", "My All\nBills", "Recharge & Bill Payments", Icons.Default.ReceiptLong)
+        )
+    }
+
+    val travelAndTickets = remember {
+        listOf(
+            ServiceItem("flight", "Flight", "Travel & Tickets", UnitedIcons.FlightTicket),
+            ServiceItem("bus", "Bus", "Travel & Tickets", UnitedIcons.BusTicket),
+            ServiceItem("train", "Train", "Travel & Tickets", UnitedIcons.TrainTicket),
+            ServiceItem("hotels", "Hotels", "Travel & Tickets", UnitedIcons.HotelBooking)
+        )
+    }
+
+    val bankingAndTransfers = remember {
+        listOf(
+            ServiceItem("bank_transfer", "To Bank\nA/C", "Banking & Transfers", UnitedIcons.BankTransfer),
+            ServiceItem("self_transfer", "To Self\nA/C", "Banking & Transfers", UnitedIcons.SelfTransfer),
+            ServiceItem("check_balance", "Check\nBalance", "Banking & Transfers", UnitedIcons.BankTemple),
+            ServiceItem("autopay", "UPI\nAutopay", "Banking & Transfers", UnitedIcons.Autopay)
+        )
+    }
+
+    val investmentsAndWealth = remember {
+        listOf(
+            ServiceItem("mutual_funds", "Mutual\nFunds", "Investments & Wealth", UnitedIcons.MutualFunds),
+            ServiceItem("digital_gold", "Digital\nGold 24K", "Investments & Wealth", UnitedIcons.DigitalGold, tint = Color(0xFFD97706)),
+            ServiceItem("digital_rupee", "Digital\nRupee (e₹)", "Investments & Wealth", UnitedIcons.Crypto),
+            ServiceItem("municipal_tax", "Municipal\nTax", "Investments & Wealth", UnitedIcons.BankTemple)
+        )
+    }
+
+    val allCategories = remember {
+        listOf(
+            "Popular Services" to popularServices,
+            "Recharge & Bill Payments" to rechargeAndBills,
+            "Travel & Tickets" to travelAndTickets,
+            "Banking & Transfers" to bankingAndTransfers,
+            "Investments & Wealth" to investmentsAndWealth
+        )
     }
 
     Scaffold(
-        containerColor = UnitedCanvasLight,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        UnitedPayLogo(size = 32.dp, showWordmark = false, asCardBadge = true)
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text("All Services & Hub", fontWeight = FontWeight.Bold, color = UnitedTextPrimary, fontSize = 18.sp)
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = UnitedTextPrimary)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = UnitedWhite,
-                    titleContentColor = UnitedTextPrimary,
-                    navigationIconContentColor = UnitedTextPrimary
-                )
+        containerColor = Color(0xFFF4F6FB),
+        bottomBar = {
+            UnitedBottomBar(
+                currentRoute = "services",
+                onNavigateHome = onNavigateHome,
+                onNavigateCards = onNavigateCards,
+                onNavigateScan = onNavigateScan,
+                onNavigateHistory = onNavigateHistory,
+                onNavigateServices = {}
             )
         }
     ) { innerPadding ->
@@ -144,71 +141,172 @@ fun AllServicesScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Search Input Field with single-line ellipsis placeholder and fixed height
+            // 1. Floating Pill Search Bar (Matching Image 1)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(UnitedWhite)
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .statusBarsPadding()
+                    .padding(horizontal = 16.dp, vertical = 10.dp)
             ) {
-                UnitedSearchField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    placeholder = "Search recharge, bills, transfers, taxes...",
-                    onClear = { searchQuery = "" }
-                )
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                        .shadow(
+                            elevation = 3.dp,
+                            shape = RoundedCornerShape(26.dp),
+                            spotColor = Color.Black.copy(alpha = 0.08f),
+                            ambientColor = Color.Black.copy(alpha = 0.04f)
+                        ),
+                    shape = RoundedCornerShape(26.dp),
+                    color = UnitedWhite,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(
+                            onClick = onBackClick,
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = UnitedTextPrimary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(4.dp))
+
+                        Box(modifier = Modifier.weight(1f)) {
+                            if (searchQuery.isEmpty()) {
+                                Text(
+                                    text = "Search For Brands",
+                                    fontSize = 15.sp,
+                                    color = Color(0xFF94A3B8),
+                                    fontWeight = FontWeight.Normal
+                                )
+                            }
+                            BasicTextField(
+                                value = searchQuery,
+                                onValueChange = { searchQuery = it },
+                                textStyle = TextStyle(
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = UnitedTextPrimary
+                                ),
+                                cursorBrush = SolidColor(UnitedMoneyBlue),
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(
+                                onClick = { searchQuery = "" },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Clear",
+                                    tint = UnitedTextSecondary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        } else {
+                            // Mic with BETA tag
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .clickable {
+                                        UnitedToast.info("Voice search is in Beta")
+                                    }
+                                    .padding(horizontal = 6.dp, vertical = 4.dp)
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(
+                                        imageVector = Icons.Default.Mic,
+                                        contentDescription = "Voice Search",
+                                        tint = UnitedTextPrimary,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Text(
+                                        text = "BETA",
+                                        fontSize = 8.sp,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        color = Color(0xFF64748B),
+                                        letterSpacing = 0.5.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
-            // Services Grid
-            val categories = listOf("Bills & Recharges", "Banking & Transfers", "Investments & Wealth")
-
+            // 2. Categorized 4-Column Grids inside Rounded White Cards
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(vertical = 16.dp)
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                for (cat in categories) {
-                    val catItems = filteredServices.filter { it.category == cat }
-                    if (catItems.isNotEmpty()) {
-                        item {
-                            Text(
-                                text = cat.uppercase(),
-                                fontSize = 11.5.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = UnitedTextSecondary,
-                                letterSpacing = 1.sp
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
+                for ((categoryTitle, items) in allCategories) {
+                    val filteredItems = if (searchQuery.isBlank()) {
+                        items
+                    } else {
+                        items.filter {
+                            it.title.replace("\n", " ").contains(searchQuery, ignoreCase = true) ||
+                            it.category.contains(searchQuery, ignoreCase = true)
+                        }
+                    }
 
+                    if (filteredItems.isNotEmpty()) {
+                        item {
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp),
+                                shape = RoundedCornerShape(20.dp),
                                 colors = CardDefaults.cardColors(containerColor = UnitedWhite),
                                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                             ) {
                                 Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .border(1.dp, UnitedBorderLight, RoundedCornerShape(12.dp))
-                                        .padding(12.dp)
+                                        .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(20.dp))
+                                        .padding(horizontal = 12.dp, vertical = 16.dp)
                                 ) {
-                                    // 4-column service grid
-                                    val chunked = catItems.chunked(4)
-                                    for (row in chunked) {
+                                    // Section Header
+                                    Text(
+                                        text = categoryTitle,
+                                        fontSize = 17.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF0F172A),
+                                        modifier = Modifier.padding(start = 6.dp, bottom = 12.dp)
+                                    )
+
+                                    // 4-Column Grid
+                                    val rows = filteredItems.chunked(4)
+                                    for (row in rows) {
                                         Row(
-                                            modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 8.dp),
                                             horizontalArrangement = Arrangement.SpaceBetween
                                         ) {
-                                            for (svc in row) {
+                                            for (service in row) {
                                                 ServiceGridItem(
-                                                    service = svc,
-                                                    onClick = { onServiceClick(svc.id) },
+                                                    service = service,
+                                                    onClick = {
+                                                        onServiceClick(service.id)
+                                                    },
                                                     modifier = Modifier.weight(1f)
                                                 )
                                             }
-                                            // Fill remaining empty spaces in row
+                                            // Fill empty spaces if row has fewer than 4 items
                                             repeat(4 - row.size) {
                                                 Spacer(modifier = Modifier.weight(1f))
                                             }
@@ -226,7 +324,7 @@ fun AllServicesScreen(
 
 @Composable
 private fun ServiceGridItem(
-    service: FintechService,
+    service: ServiceItem,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -234,58 +332,51 @@ private fun ServiceGridItem(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
-            .padding(horizontal = 4.dp, vertical = 6.dp),
+            .padding(horizontal = 2.dp, vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Box(
-            modifier = Modifier.size(width = 56.dp, height = 50.dp),
+            modifier = Modifier.size(width = 54.dp, height = 40.dp),
             contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFFF1F5F9))
-                    .border(1.dp, Color(0xFFE2E8F0), CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = service.icon,
-                    contentDescription = service.title,
-                    tint = UnitedMoneyBlue,
-                    modifier = Modifier.size(22.dp)
-                )
-            }
+            Icon(
+                imageVector = service.icon,
+                contentDescription = service.title.replace("\n", " "),
+                tint = service.tint,
+                modifier = Modifier.size(28.dp)
+            )
+
             if (service.badge != null) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .offset(x = 4.dp, y = (-2).dp)
+                        .offset(x = 6.dp, y = (-4).dp)
                         .clip(RoundedCornerShape(6.dp))
                         .background(Color(0xFF00C853))
-                        .padding(horizontal = 4.5.dp, vertical = 1.5.dp)
+                        .padding(horizontal = 4.dp, vertical = 1.dp)
                 ) {
                     Text(
                         text = service.badge,
                         color = UnitedWhite,
                         fontSize = 7.5.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        letterSpacing = 0.3.sp
+                        fontWeight = FontWeight.ExtraBold
                     )
                 }
             }
         }
-        Spacer(modifier = Modifier.height(4.dp))
+
+        Spacer(modifier = Modifier.height(6.dp))
+
         Text(
             text = service.title,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = UnitedTextPrimary,
+            fontSize = 11.5.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color(0xFF1E293B),
             textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
-            lineHeight = 13.sp
+            lineHeight = 14.sp
         )
     }
 }
