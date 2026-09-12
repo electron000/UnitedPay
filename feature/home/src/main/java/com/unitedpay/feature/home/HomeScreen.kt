@@ -1,5 +1,7 @@
 package com.unitedpay.feature.home
 
+import android.graphics.BitmapFactory
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -37,10 +39,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.io.File
 import com.unitedpay.core.designsystem.components.UnitedBottomBar
 import com.unitedpay.core.designsystem.components.UnitedIcons
 import com.unitedpay.core.designsystem.components.UnitedPayLogo
@@ -76,8 +82,13 @@ fun HomeScreen(
     onNavigateToScan: () -> Unit,
     onNavigateToPayment: (String) -> Unit,
     onNavigateToPassbook: () -> Unit,
-    onNavigateToProfile: () -> Unit,
     onNavigateToCards: () -> Unit,
+    onNavigateToChangeMpin: () -> Unit = {},
+    onNavigateToBiometrics: () -> Unit = {},
+    onNavigateToSoundbox: () -> Unit = {},
+    onNavigateToDisputeCenter: () -> Unit = {},
+    onNavigateToMyQr: () -> Unit = {},
+    onLogout: () -> Unit = {},
     onNavigateToAllServices: () -> Unit = {},
     onNavigateToRecharge: () -> Unit = {},
     onNavigateToElectricity: () -> Unit = {},
@@ -218,11 +229,12 @@ fun HomeScreen(
         ProfileDrawer(
             isOpen = isProfileDrawerOpen,
             onDismiss = { isProfileDrawerOpen = false },
-            onNavigateChangeMpin = onNavigateToProfile,
-            onNavigateBiometrics = onNavigateToProfile,
-            onNavigateSoundbox = onNavigateToProfile,
-            onNavigateDispute = onNavigateToProfile,
-            onNavigateMyQr = onNavigateToProfile
+            onNavigateChangeMpin = onNavigateToChangeMpin,
+            onNavigateBiometrics = onNavigateToBiometrics,
+            onNavigateSoundbox = onNavigateToSoundbox,
+            onNavigateDispute = onNavigateToDisputeCenter,
+            onNavigateMyQr = onNavigateToMyQr,
+            onLogout = onLogout
         )
     }
 }
@@ -252,6 +264,18 @@ private fun HeaderGradientSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Left User Profile Avatar (Opens Paytm-style Slide-over Profile & QR Drawer)
+                val currentSession by com.unitedpay.core.model.session.UserSessionManager.currentSession.collectAsState()
+                val avatarUrl = currentSession?.userProfile?.avatarUrl
+                val avatarBmp: ImageBitmap? = remember(avatarUrl) {
+                    if (avatarUrl != null && File(avatarUrl).exists()) {
+                        try {
+                            BitmapFactory.decodeFile(avatarUrl)?.asImageBitmap()
+                        } catch (e: Exception) {
+                            null
+                        }
+                    } else null
+                }
+
                 Box(
                     modifier = Modifier
                         .size(38.dp)
@@ -261,17 +285,26 @@ private fun HeaderGradientSection(
                         .clickable(onClick = onMenuClick),
                     contentAlignment = Alignment.Center
                 ) {
-                    val initials = userName.split(" ")
-                        .mapNotNull { it.firstOrNull()?.toString() }
-                        .take(2)
-                        .joinToString("")
-                        .ifEmpty { "AC" }
-                    Text(
-                        text = initials,
-                        color = UnitedWhite,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.ExtraBold
-                    )
+                    if (avatarBmp != null) {
+                        Image(
+                            bitmap = avatarBmp,
+                            contentDescription = "Profile Photo",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        val initials = userName.split(" ")
+                            .mapNotNull { it.firstOrNull()?.toString() }
+                            .take(2)
+                            .joinToString("")
+                            .ifEmpty { "AC" }
+                        Text(
+                            text = initials,
+                            color = UnitedWhite,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
                 }
 
                 // Right Chat & Notification Icons

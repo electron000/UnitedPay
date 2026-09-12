@@ -44,7 +44,8 @@ data class UserSessionData(
     val insurancePolicySummary: InsurancePolicySummary? = null,
     val scratchCards: List<ScratchCardReward> = emptyList(),
     val disputeTickets: List<DisputeTicket> = emptyList(),
-    val upiPin: String? = null
+    val upiPin: String? = null,
+    val profilePicturePath: String? = null
 ) {
     val userProfile: UserProfile
         get() = UserProfile(
@@ -53,7 +54,8 @@ data class UserSessionData(
             phoneNumber = phoneNumber,
             primaryVpa = primaryVpa,
             qrCodePayload = "upi://pay?pa=$primaryVpa&pn=${fullName.replace(" ", "%20")}&cu=INR",
-            isKycVerified = isOnboarded
+            isKycVerified = isOnboarded,
+            avatarUrl = profilePicturePath
         )
 }
 
@@ -77,6 +79,7 @@ object UserSessionManager {
     private const val KEY_SIM2_TXNS = "sim2_txns"
     private const val KEY_SIM2_CHATS = "sim2_chats"
     private const val KEY_SIM2_NOTIFS = "sim2_notifs"
+    private const val KEY_PROFILE_PIC_PREFIX = "profile_pic_"
 
     private var prefs: SharedPreferences? = null
 
@@ -185,6 +188,16 @@ object UserSessionManager {
 
         accountsStore[SIM_1_PHONE] = accountsStore[SIM_1_PHONE]!!.copy(isBiometricEnabled = sim1Bio)
 
+        // Restore saved profile photos from storage
+        val sim1Pic = prefs?.getString(KEY_PROFILE_PIC_PREFIX + SIM_1_PHONE, null)
+        val sim2Pic = prefs?.getString(KEY_PROFILE_PIC_PREFIX + SIM_2_PHONE, null)
+        if (sim1Pic != null && java.io.File(sim1Pic).exists()) {
+            accountsStore[SIM_1_PHONE] = accountsStore[SIM_1_PHONE]!!.copy(profilePicturePath = sim1Pic)
+        }
+        if (sim2Pic != null && java.io.File(sim2Pic).exists()) {
+            accountsStore[SIM_2_PHONE] = accountsStore[SIM_2_PHONE]!!.copy(profilePicturePath = sim2Pic)
+        }
+
         if (sim2Onboarded) {
             val existingSim2 = accountsStore[SIM_2_PHONE]!!
             // Restore persistent SIM 2 transactions
@@ -218,6 +231,25 @@ object UserSessionManager {
         } else {
             _currentSession.value = null
         }
+    }
+
+    /**
+     * Updates and persists the user's profile avatar photo in internal app storage.
+     */
+    fun updateProfilePicture(imagePath: String?) {
+        val current = _currentSession.value ?: return
+        val phone = if (current.phoneNumber.contains(SIM_1_PHONE)) SIM_1_PHONE else SIM_2_PHONE
+        prefs?.edit()?.apply {
+            if (imagePath != null) {
+                putString(KEY_PROFILE_PIC_PREFIX + phone, imagePath)
+            } else {
+                remove(KEY_PROFILE_PIC_PREFIX + phone)
+            }
+            apply()
+        }
+        val updated = current.copy(profilePicturePath = imagePath)
+        accountsStore[phone] = updated
+        _currentSession.value = updated
     }
 
     val isLoggedIn: Boolean

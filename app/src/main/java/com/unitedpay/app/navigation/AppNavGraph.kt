@@ -13,7 +13,6 @@ import com.unitedpay.feature.auth.SplashScreen
 import com.unitedpay.feature.home.AllServicesScreen
 import com.unitedpay.feature.home.CardsScreen
 import com.unitedpay.feature.home.HomeScreen
-import com.unitedpay.feature.home.ProfileScreen
 
 // Cards Domain
 import com.unitedpay.feature.home.cards.AddCardScreen
@@ -207,14 +206,19 @@ fun AppNavGraph(
                         launchSingleTop = true
                     }
                 },
-                onNavigateToProfile = {
-                    navController.navigate(Screen.Profile.route) {
-                        launchSingleTop = true
-                    }
-                },
                 onNavigateToCards = {
                     navController.navigate(Screen.Cards.route) {
                         launchSingleTop = true
+                    }
+                },
+                onNavigateToChangeMpin = { navController.navigate(Screen.ChangeMpin.route) },
+                onNavigateToBiometrics = { navController.navigate(Screen.Biometrics.route) },
+                onNavigateToSoundbox = { navController.navigate(Screen.Soundbox.route) },
+                onNavigateToDisputeCenter = { navController.navigate(Screen.DisputeCenter.route) },
+                onNavigateToMyQr = { navController.navigate(Screen.MyQr.route) },
+                onLogout = {
+                    navController.navigate(Screen.SimBinding.route) {
+                        popUpTo(0) { inclusive = true }
                     }
                 },
                 onNavigateToAllServices = { navController.navigate(Screen.AllServices.route) },
@@ -321,46 +325,21 @@ fun AppNavGraph(
             )
         }
 
-        // Tab 5: Profile
-        composable(Screen.Profile.route) {
-            ProfileScreen(
-                onNavigateHome = {
-                    navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Home.route) { inclusive = true }
-                    }
-                },
-                onNavigateCards = {
-                    navController.navigate(Screen.Cards.route) {
-                        launchSingleTop = true
-                    }
-                },
-                onNavigateScan = { navController.navigate(Screen.QrScanner.route) },
-                onNavigateHistory = {
-                    navController.navigate(Screen.Passbook.route) {
-                        launchSingleTop = true
-                    }
-                },
-                onNavigateToMyQr = {
-                    navController.navigate(Screen.MyQr.route)
-                },
-                onNavigateToBiometrics = {
-                    navController.navigate(Screen.Biometrics.route)
-                },
-                onNavigateToChangeMpin = {
-                    navController.navigate(Screen.ChangeMpin.route)
-                },
-                onNavigateToSoundbox = {
-                    navController.navigate(Screen.Soundbox.route)
-                },
-                onNavigateToDisputeCenter = {
-                    navController.navigate(Screen.DisputeCenter.route)
-                },
-                onLogout = {
-                    navController.navigate(Screen.SimBinding.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                }
-            )
+        // Profile Sub-Screens (Direct access from Profile Drawer)
+        composable(Screen.ChangeMpin.route) {
+            ChangeMpinScreen(onBackClick = { navController.popBackStack() })
+        }
+        composable(Screen.Biometrics.route) {
+            BiometricLockScreen(onBackClick = { navController.popBackStack() })
+        }
+        composable(Screen.Soundbox.route) {
+            SoundboxSettingsScreen(onBackClick = { navController.popBackStack() })
+        }
+        composable(Screen.DisputeCenter.route) {
+            DisputeCenterScreen(onBackClick = { navController.popBackStack() })
+        }
+        composable(Screen.MyQr.route) {
+            MyQrScreen(onBackClick = { navController.popBackStack() })
         }
 
         // Tab 5: "More" Services Hub Page (20+ features)
