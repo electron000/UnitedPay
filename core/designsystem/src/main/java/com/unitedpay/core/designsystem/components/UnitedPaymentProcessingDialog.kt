@@ -511,6 +511,32 @@ private fun CompletionView(
                         .fillMaxWidth()
                         .padding(18.dp)
                 ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        BrandShield(size = 28.dp, asCardBadge = true)
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = "UNITED PAY RECEIPT",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = UnitedMoneyBlue,
+                                letterSpacing = 0.5.sp
+                            )
+                            Text(
+                                text = "NPCI Unified Payments Interface",
+                                fontSize = 10.sp,
+                                color = UnitedTextSecondary
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+                    HorizontalDivider(color = UnitedBorderLight)
+                    Spacer(modifier = Modifier.height(14.dp))
+
                     ReceiptRow(label = "Paid To", value = recipientName, isHighlight = true)
 
                     if (recipientSubtitle.isNotBlank()) {

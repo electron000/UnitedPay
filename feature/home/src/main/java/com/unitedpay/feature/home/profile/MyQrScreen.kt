@@ -37,6 +37,7 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import com.unitedpay.core.designsystem.components.BrandShield
 import com.unitedpay.core.designsystem.theme.*
 import com.unitedpay.core.model.session.UserSessionManager
+import com.unitedpay.feature.home.components.createBrandedQrCard
 import com.unitedpay.feature.home.components.sharePersonalQr
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -230,6 +231,7 @@ fun MyQrScreen(
                     onClick = {
                         if (qrBitmap != null) {
                             try {
+                                val brandedBmp = createBrandedQrCard(context, qrBitmap, userProfile.userName, userProfile.vpa)
                                 val filename = "UnitedPay_QR_${System.currentTimeMillis()}.png"
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                                     val values = ContentValues().apply {
@@ -242,7 +244,7 @@ fun MyQrScreen(
                                     if (uri != null) {
                                         val outputStream: java.io.OutputStream? = context.contentResolver.openOutputStream(uri)
                                         outputStream?.use { out ->
-                                            qrBitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                                            brandedBmp.compress(Bitmap.CompressFormat.PNG, 100, out)
                                         }
                                         values.clear()
                                         values.put(MediaStore.Images.Media.IS_PENDING, 0)
@@ -252,12 +254,12 @@ fun MyQrScreen(
                                     @Suppress("DEPRECATION")
                                     MediaStore.Images.Media.insertImage(
                                         context.contentResolver,
-                                        qrBitmap,
+                                        brandedBmp,
                                         filename,
                                         "UnitedPay QR"
                                     )
                                 }
-                                UnitedToast.success("QR Code saved to Gallery successfully")
+                                UnitedToast.success("Branded QR Card saved to Gallery successfully")
                             } catch (e: Exception) {
                                 UnitedToast.error("Saved to Gallery: ${e.localizedMessage}")
                             }

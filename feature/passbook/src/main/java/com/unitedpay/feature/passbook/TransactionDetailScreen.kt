@@ -38,7 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.FileProvider
+import com.unitedpay.core.designsystem.components.BrandShield
 import com.unitedpay.core.designsystem.components.UnitedToast
 import com.unitedpay.core.designsystem.theme.*
 import com.unitedpay.core.designsystem.util.ReceiptShareHelper
@@ -265,6 +265,32 @@ fun TransactionDetailScreen(
                         .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp))
                         .padding(18.dp)
                 ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        BrandShield(size = 30.dp, asCardBadge = true)
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = "UNITED PAY RECEIPT",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = UnitedMoneyBlue,
+                                letterSpacing = 0.5.sp
+                            )
+                            Text(
+                                text = "NPCI Unified Payments Interface • Verified",
+                                fontSize = 10.5.sp,
+                                color = UnitedTextSecondary
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+                    HorizontalDivider(color = Color(0xFFF1F5F9))
+                    Spacer(modifier = Modifier.height(14.dp))
+
                     Text(
                         text = "TRANSACTION DETAILS",
                         fontSize = 11.5.sp,

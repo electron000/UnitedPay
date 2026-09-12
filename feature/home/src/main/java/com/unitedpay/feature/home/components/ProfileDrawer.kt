@@ -109,6 +109,7 @@ import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import com.unitedpay.core.designsystem.components.BrandShield
 import com.unitedpay.core.designsystem.components.UnitedToast
+import com.unitedpay.core.designsystem.theme.UnitedBorderLight
 import com.unitedpay.core.designsystem.theme.UnitedMoneyBlue
 import com.unitedpay.core.designsystem.theme.UnitedObsidian
 import com.unitedpay.core.designsystem.theme.UnitedSuccess
@@ -496,11 +497,28 @@ fun ProfileDrawer(
                                 contentAlignment = Alignment.Center
                             ) {
                                 if (qrBitmap != null) {
-                                    Image(
-                                        bitmap = qrBitmap!!.asImageBitmap(),
-                                        contentDescription = "My Personal Dynamic UPI QR Code",
+                                    Box(
+                                        contentAlignment = Alignment.Center,
                                         modifier = Modifier.fillMaxSize(0.92f)
-                                    )
+                                    ) {
+                                        Image(
+                                            bitmap = qrBitmap!!.asImageBitmap(),
+                                            contentDescription = "My Personal Dynamic UPI QR Code",
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                        // Central Brand Logo Emblem
+                                        Box(
+                                            modifier = Modifier
+                                                .size(38.dp)
+                                                .clip(RoundedCornerShape(10.dp))
+                                                .background(UnitedWhite)
+                                                .border(1.dp, UnitedBorderLight, RoundedCornerShape(10.dp))
+                                                .padding(3.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            BrandShield(size = 28.dp)
+                                        }
+                                    }
                                 } else {
                                     CircularProgressIndicator(color = UnitedMoneyBlue, modifier = Modifier.size(36.dp))
                                 }
@@ -881,9 +899,9 @@ private fun downloadQrToDevice(context: Context, bitmap: Bitmap?, userName: Stri
 }
 
 /**
- * Creates a high-resolution, branded 1080x1400 QR Card bitmap.
+ * Creates a high-resolution, branded 1080x1420 QR Card bitmap with official UnitedPay logo.
  */
-private fun createBrandedQrCard(context: Context, qrBmp: Bitmap, userName: String, vpa: String): Bitmap {
+internal fun createBrandedQrCard(context: Context, qrBmp: Bitmap, userName: String, vpa: String): Bitmap {
     val width = 1080
     val height = 1420
     val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -898,21 +916,68 @@ private fun createBrandedQrCard(context: Context, qrBmp: Bitmap, userName: Strin
     paint.color = AndroidColor.parseColor("#0052CC")
     canvas.drawRect(0f, 0f, width.toFloat(), 180f, paint)
 
-    // Brand Title
-    paint.color = AndroidColor.WHITE
-    paint.textSize = 52f
-    paint.typeface = android.graphics.Typeface.create(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD)
-    paint.textAlign = Paint.Align.CENTER
-    canvas.drawText("UNITED PAY", width / 2f, 95f, paint)
+    val logoBmp = try {
+        BitmapFactory.decodeResource(context.resources, com.unitedpay.core.designsystem.R.drawable.brand_logo_transparent)
+            ?: BitmapFactory.decodeResource(context.resources, com.unitedpay.core.designsystem.R.drawable.brand_logo)
+    } catch (e: Exception) {
+        null
+    }
 
-    paint.textSize = 28f
-    paint.typeface = android.graphics.Typeface.DEFAULT
-    canvas.drawText("ACCEPTED HERE • INSTANT UPI SETTLEMENT", width / 2f, 142f, paint)
+    if (logoBmp != null) {
+        val badgeSize = 74f
+        val gap = 16f
+        paint.color = AndroidColor.WHITE
+        paint.textSize = 46f
+        paint.typeface = android.graphics.Typeface.create(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD)
+        val titleWidth = paint.measureText("UNITED PAY")
+        val clusterWidth = badgeSize + gap + titleWidth
+        val clusterStartX = (width - clusterWidth) / 2f
+
+        val badgeRect = RectF(clusterStartX, 28f, clusterStartX + badgeSize, 28f + badgeSize)
+        paint.color = AndroidColor.WHITE
+        paint.style = Paint.Style.FILL
+        canvas.drawRoundRect(badgeRect, 16f, 16f, paint)
+
+        paint.color = AndroidColor.parseColor("#DBEAFE")
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 2f
+        canvas.drawRoundRect(badgeRect, 16f, 16f, paint)
+
+        paint.style = Paint.Style.FILL
+        val pad = 7f
+        val logoRect = RectF(badgeRect.left + pad, badgeRect.top + pad, badgeRect.right - pad, badgeRect.bottom - pad)
+        canvas.drawBitmap(logoBmp, null, logoRect, paint)
+
+        val textStartX = clusterStartX + badgeSize + gap
+        paint.textAlign = Paint.Align.LEFT
+        paint.color = AndroidColor.WHITE
+        paint.textSize = 46f
+        paint.typeface = android.graphics.Typeface.create(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD)
+        canvas.drawText("UNITED PAY", textStartX, 78f, paint)
+
+        paint.textAlign = Paint.Align.CENTER
+        paint.textSize = 24f
+        paint.typeface = android.graphics.Typeface.DEFAULT
+        paint.color = AndroidColor.parseColor("#DBEAFE")
+        canvas.drawText("ACCEPTED HERE • INSTANT UPI SETTLEMENT", width / 2f, 142f, paint)
+    } else {
+        paint.color = AndroidColor.WHITE
+        paint.textSize = 52f
+        paint.typeface = android.graphics.Typeface.create(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD)
+        paint.textAlign = Paint.Align.CENTER
+        canvas.drawText("UNITED PAY", width / 2f, 95f, paint)
+
+        paint.textSize = 28f
+        paint.typeface = android.graphics.Typeface.DEFAULT
+        paint.color = AndroidColor.parseColor("#DBEAFE")
+        canvas.drawText("ACCEPTED HERE • INSTANT UPI SETTLEMENT", width / 2f, 142f, paint)
+    }
 
     // User Name
     paint.color = AndroidColor.parseColor("#0F172A")
     paint.textSize = 48f
     paint.typeface = android.graphics.Typeface.create(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD)
+    paint.textAlign = Paint.Align.CENTER
     canvas.drawText(userName, width / 2f, 260f, paint)
 
     // Verified badge subtitle
@@ -940,6 +1005,28 @@ private fun createBrandedQrCard(context: Context, qrBmp: Bitmap, userName: Strin
     // QR Image
     paint.style = Paint.Style.FILL
     canvas.drawBitmap(qrBmp, null, RectF(qrLeft, qrTop, qrLeft + qrSize, qrTop + qrSize), paint)
+
+    // Official Brand Logo Emblem in QR Center
+    val centerBadgeSize = 116f
+    val cx = qrLeft + qrSize / 2f
+    val cy = qrTop + qrSize / 2f
+    val qrLogoBadgeRect = RectF(cx - centerBadgeSize / 2f, cy - centerBadgeSize / 2f, cx + centerBadgeSize / 2f, cy + centerBadgeSize / 2f)
+
+    paint.color = AndroidColor.WHITE
+    paint.style = Paint.Style.FILL
+    canvas.drawRoundRect(qrLogoBadgeRect, 22f, 22f, paint)
+
+    paint.color = AndroidColor.parseColor("#CBD5E1")
+    paint.style = Paint.Style.STROKE
+    paint.strokeWidth = 3f
+    canvas.drawRoundRect(qrLogoBadgeRect, 22f, 22f, paint)
+
+    if (logoBmp != null) {
+        paint.style = Paint.Style.FILL
+        val innerPad = 12f
+        val innerLogoRect = RectF(qrLogoBadgeRect.left + innerPad, qrLogoBadgeRect.top + innerPad, qrLogoBadgeRect.right - innerPad, qrLogoBadgeRect.bottom - innerPad)
+        canvas.drawBitmap(logoBmp, null, innerLogoRect, paint)
+    }
 
     // UPI ID Container Pill
     val pillTop = qrTop + qrSize + 60f

@@ -4,12 +4,15 @@ import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color as AndroidColor
 import android.graphics.Paint
+import android.graphics.RectF
 import android.graphics.Typeface
 import android.net.Uri
 import androidx.core.content.FileProvider
+import com.unitedpay.core.designsystem.R
 import com.unitedpay.core.model.TransactionType
 import com.unitedpay.core.model.UpiTransaction
 import java.io.File
@@ -59,9 +62,9 @@ object ReceiptShareHelper {
     }
 
     /**
-     * Renders a high-resolution 1080x1620 branded transaction receipt bitmap.
+     * Renders a high-resolution 1080x1620 branded transaction receipt bitmap with official UnitedPay logo.
      */
-    fun generateReceiptBitmap(transaction: UpiTransaction): Bitmap {
+    fun generateReceiptBitmap(context: Context? = null, transaction: UpiTransaction): Bitmap {
         val width = 1080
         val height = 1620
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -74,18 +77,77 @@ object ReceiptShareHelper {
 
         // 2. Top Royal Blue Brand Header
         paint.color = AndroidColor.parseColor("#0052CC")
-        canvas.drawRect(0f, 0f, width.toFloat(), 200f, paint)
+        canvas.drawRect(0f, 0f, width.toFloat(), 210f, paint)
 
-        // 3. Brand Wordmark & Shield
-        paint.color = AndroidColor.WHITE
-        paint.textSize = 52f
-        paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-        paint.textAlign = Paint.Align.CENTER
-        canvas.drawText("UNITED PAY", 540f, 110f, paint)
+        // Decode official brand logo
+        val logoBmp: Bitmap? = if (context != null) {
+            try {
+                BitmapFactory.decodeResource(context.resources, R.drawable.brand_logo_transparent)
+                    ?: BitmapFactory.decodeResource(context.resources, R.drawable.brand_logo)
+            } catch (e: Exception) {
+                null
+            }
+        } else null
 
-        paint.textSize = 26f
-        paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-        canvas.drawText("OFFICIAL UPI TRANSACTION RECEIPT", 540f, 155f, paint)
+        // 3. Brand Wordmark & Official Logo Badge in Header
+        if (logoBmp != null) {
+            val badgeSize = 84f
+            val gap = 20f
+            paint.color = AndroidColor.WHITE
+            paint.textSize = 48f
+            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            val titleWidth = paint.measureText("UNITED PAY")
+            val clusterWidth = badgeSize + gap + titleWidth
+            val clusterStartX = (width - clusterWidth) / 2f
+
+            // White rounded badge for logo
+            val badgeRect = RectF(clusterStartX, 36f, clusterStartX + badgeSize, 36f + badgeSize)
+            paint.color = AndroidColor.WHITE
+            paint.style = Paint.Style.FILL
+            canvas.drawRoundRect(badgeRect, 18f, 18f, paint)
+
+            paint.color = AndroidColor.parseColor("#DBEAFE")
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = 2f
+            canvas.drawRoundRect(badgeRect, 18f, 18f, paint)
+
+            // Draw Logo inside badge
+            paint.style = Paint.Style.FILL
+            val pad = 8f
+            val logoRect = RectF(badgeRect.left + pad, badgeRect.top + pad, badgeRect.right - pad, badgeRect.bottom - pad)
+            canvas.drawBitmap(logoBmp, null, logoRect, paint)
+
+            // Title "UNITED PAY"
+            val textStartX = clusterStartX + badgeSize + gap
+            paint.textAlign = Paint.Align.LEFT
+            paint.color = AndroidColor.WHITE
+            paint.textSize = 48f
+            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            canvas.drawText("UNITED PAY", textStartX, 84f, paint)
+
+            // Subtitle under title
+            paint.textSize = 20f
+            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+            paint.color = AndroidColor.parseColor("#DBEAFE")
+            canvas.drawText("OFFICIAL UPI TRANSACTION RECEIPT", textStartX, 114f, paint)
+
+            // Trust tag at bottom of header banner
+            paint.textAlign = Paint.Align.CENTER
+            paint.textSize = 21f
+            paint.color = AndroidColor.parseColor("#93C5FD")
+            canvas.drawText("100% SECURE • NPCI UNIFIED PAYMENTS INTERFACE", width / 2f, 175f, paint)
+        } else {
+            paint.color = AndroidColor.WHITE
+            paint.textSize = 52f
+            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            paint.textAlign = Paint.Align.CENTER
+            canvas.drawText("UNITED PAY", 540f, 100f, paint)
+
+            paint.textSize = 24f
+            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+            paint.color = AndroidColor.parseColor("#DBEAFE")
+            canvas.drawText("OFFICIAL UPI TRANSACTION RECEIPT", 540f, 145f, paint)
+        }
 
         // 4. Success Green Checkmark Circle
         paint.color = AndroidColor.parseColor("#16A34A")
@@ -109,6 +171,7 @@ object ReceiptShareHelper {
         paint.color = AndroidColor.parseColor("#16A34A")
         paint.textSize = 34f
         paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        paint.textAlign = Paint.Align.CENTER
         canvas.drawText("Payment Successful", 540f, 430f, paint)
 
         // 6. Amount Display
@@ -178,27 +241,49 @@ object ReceiptShareHelper {
         paint.color = AndroidColor.parseColor("#E2E8F0")
         canvas.drawLine(100f, yOffset + 20f, 980f, yOffset + 20f, paint)
 
-        // 11. Regulatory & Trust Footer
+        // 11. Regulatory & Trust Footer with Official Logo Seal
+        if (logoBmp != null) {
+            val sealSize = 52f
+            val sealRect = RectF(540f - sealSize / 2f, yOffset + 40f, 540f + sealSize / 2f, yOffset + 40f + sealSize)
+            paint.color = AndroidColor.parseColor("#F8FAFC")
+            paint.style = Paint.Style.FILL
+            canvas.drawRoundRect(sealRect, 14f, 14f, paint)
+
+            paint.color = AndroidColor.parseColor("#CBD5E1")
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = 1.5f
+            canvas.drawRoundRect(sealRect, 14f, 14f, paint)
+
+            paint.style = Paint.Style.FILL
+            canvas.drawBitmap(logoBmp, null, RectF(sealRect.left + 6f, sealRect.top + 6f, sealRect.right - 6f, sealRect.bottom - 6f), paint)
+        }
+
+        val footerTextY = if (logoBmp != null) yOffset + 120f else yOffset + 80f
         paint.textAlign = Paint.Align.CENTER
         paint.color = AndroidColor.parseColor("#0078DF")
-        paint.textSize = 24f
+        paint.textSize = 23f
         paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-        canvas.drawText("NPCI & RBI REGULATED • 256-BIT ENCRYPTION SECURED", 540f, yOffset + 80f, paint)
+        canvas.drawText("NPCI & RBI REGULATED • 256-BIT ENCRYPTION SECURED", 540f, footerTextY, paint)
 
         paint.color = AndroidColor.parseColor("#94A3B8")
         paint.textSize = 20f
         paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-        canvas.drawText("United Pay — North East's Trusted Fintech Platform", 540f, yOffset + 115f, paint)
+        canvas.drawText("United Pay — North East's Trusted Fintech Platform", 540f, footerTextY + 35f, paint)
 
         return bitmap
     }
+
+    /**
+     * Backward-compatible overload for generateReceiptBitmap.
+     */
+    fun generateReceiptBitmap(transaction: UpiTransaction): Bitmap = generateReceiptBitmap(null, transaction)
 
     /**
      * Saves the receipt bitmap to the cache directory and generates a FileProvider content URI.
      */
     fun getReceiptImageUri(context: Context, transaction: UpiTransaction): Uri? {
         return try {
-            val bitmap = generateReceiptBitmap(transaction)
+            val bitmap = generateReceiptBitmap(context, transaction)
             val receiptsDir = File(context.cacheDir, "receipts").apply { mkdirs() }
             val safeFileName = "receipt_${transaction.id.replace(Regex("[^a-zA-Z0-9]"), "_")}.png"
             val receiptFile = File(receiptsDir, safeFileName)
