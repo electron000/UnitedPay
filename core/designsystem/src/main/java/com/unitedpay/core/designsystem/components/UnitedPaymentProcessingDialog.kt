@@ -78,6 +78,10 @@ import com.unitedpay.core.designsystem.theme.UnitedObsidian
 import com.unitedpay.core.designsystem.theme.UnitedRoyalBlue
 import com.unitedpay.core.designsystem.theme.UnitedSuccess
 import com.unitedpay.core.designsystem.theme.UnitedTextPrimary
+import com.unitedpay.core.designsystem.util.ReceiptShareHelper
+import com.unitedpay.core.model.PaymentStatus
+import com.unitedpay.core.model.TransactionType
+import com.unitedpay.core.model.UpiTransaction
 import com.unitedpay.core.designsystem.theme.UnitedTextSecondary
 import com.unitedpay.core.designsystem.theme.UnitedWhite
 import kotlinx.coroutines.delay
@@ -187,23 +191,22 @@ fun UnitedPaymentProcessingDialog(
                         timestamp = transactionTimestamp,
                         onDone = onDone,
                         onShare = {
-                            val shareText = """
-                                United Pay - Transaction Successful!
-                                Amount: $formattedAmount
-                                Paid To: $recipientName
-                                Category: $transactionCategory
-                                Bank: $bankName ($accountMasked)
-                                UPI Ref (UTR): $utrNumber
-                                Date: $transactionTimestamp
-                                Secured by NPCI UPI
-                            """.trimIndent()
-
-                            val sendIntent = Intent().apply {
-                                action = Intent.ACTION_SEND
-                                putExtra(Intent.EXTRA_TEXT, shareText)
-                                type = "text/plain"
-                            }
-                            context.startActivity(Intent.createChooser(sendIntent, "Share Payment Receipt"))
+                            val numericAmount = formattedAmount.replace(Regex("[^0-9.]"), "").toDoubleOrNull() ?: 100.0
+                            val resolvedVpa = if (recipientSubtitle.contains("@")) recipientSubtitle else recipientName.lowercase().replace(" ", "") + "@upi"
+                            val txn = UpiTransaction(
+                                id = "TXN_${System.currentTimeMillis()}",
+                                utrNumber = utrNumber,
+                                payeeName = recipientName,
+                                payeeVpa = resolvedVpa,
+                                amount = numericAmount,
+                                timestamp = System.currentTimeMillis(),
+                                status = PaymentStatus.SUCCESS,
+                                type = TransactionType.DEBIT,
+                                bankName = bankName,
+                                bankAccountNumberMasked = accountMasked,
+                                note = transactionCategory
+                            )
+                            ReceiptShareHelper.shareReceipt(context, txn)
                         },
                         onCopyUtr = {
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager

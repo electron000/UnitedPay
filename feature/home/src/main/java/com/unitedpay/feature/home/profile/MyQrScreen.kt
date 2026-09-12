@@ -37,6 +37,7 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import com.unitedpay.core.designsystem.components.BrandShield
 import com.unitedpay.core.designsystem.theme.*
 import com.unitedpay.core.model.session.UserSessionManager
+import com.unitedpay.feature.home.components.sharePersonalQr
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -208,16 +209,7 @@ fun MyQrScreen(
             Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Button(
                     onClick = {
-                        try {
-                            val sendIntent = Intent().apply {
-                                action = Intent.ACTION_SEND
-                                putExtra(Intent.EXTRA_TEXT, "Pay ${userProfile.userName} via UnitedPay UPI: $upiString")
-                                type = "text/plain"
-                            }
-                            context.startActivity(Intent.createChooser(sendIntent, "Share UPI QR"))
-                        } catch (e: Exception) {
-                            UnitedToast.success("UPI String copied to clipboard!")
-                        }
+                        sharePersonalQr(context, qrBitmap, userProfile.userName, userProfile.vpa)
                     },
                     modifier = Modifier
                         .fillMaxWidth()

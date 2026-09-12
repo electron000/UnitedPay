@@ -977,7 +977,7 @@ private fun createBrandedQrCard(context: Context, qrBmp: Bitmap, userName: Strin
 /**
  * Shares branded 1080p QR Card image alongside an executive UPI payment message via native Android Intent.
  */
-private fun sharePersonalQr(context: Context, bitmap: Bitmap?, userName: String, vpa: String) {
+internal fun sharePersonalQr(context: Context, bitmap: Bitmap?, userName: String, vpa: String) {
     if (bitmap == null) {
         val sendIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
@@ -1011,7 +1011,11 @@ private fun sharePersonalQr(context: Context, bitmap: Bitmap?, userName: String,
             clipData = ClipData.newRawUri("UPI QR Code", contentUri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        context.startActivity(Intent.createChooser(shareIntent, "Share Personal UPI QR via"))
+        val chooser = Intent.createChooser(shareIntent, "Share Personal UPI QR via").apply {
+            clipData = ClipData.newRawUri("UPI QR Code", contentUri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.startActivity(chooser)
     } catch (e: Exception) {
         UnitedToast.info("UPI ID: $vpa")
     }

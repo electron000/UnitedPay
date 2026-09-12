@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.unitedpay.core.designsystem.components.UnitedCenteredAmountField
 import com.unitedpay.core.designsystem.components.UnitedNpciMpinSheet
 import com.unitedpay.core.designsystem.theme.*
+import com.unitedpay.core.designsystem.util.ReceiptShareHelper
 import com.unitedpay.core.model.PaymentStatus
 import com.unitedpay.core.model.TransactionRepository
 import com.unitedpay.core.model.TransactionType
@@ -1505,35 +1506,5 @@ fun ChatDetailScreen(
 }
 
 private fun shareChatReceipt(context: Context, txn: UpiTransaction) {
-    val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
-    val formattedDate = dateFormat.format(Date(txn.timestamp))
-    val isDebit = txn.type == TransactionType.DEBIT
-
-    val receiptText = buildString {
-        appendLine("==========================================")
-        appendLine("       UNITED PAY - UPI RECEIPT           ")
-        appendLine("==========================================")
-        appendLine("Status: ${txn.status.name} (COMPLETED)")
-        appendLine("Amount: ₹${String.format(Locale.getDefault(), "%,.2f", txn.amount)}")
-        appendLine("${if (isDebit) "Paid to:" else "Received from:"} ${txn.payeeName} (${txn.payeeVpa})")
-        appendLine("${if (isDebit) "Debited from:" else "Credited to:"} ${txn.bankName} ${txn.bankAccountNumberMasked}")
-        appendLine("Payer: ${txn.payerName} (${txn.payerVpa})")
-        appendLine("UPI Ref / UTR: ${txn.utrNumber}")
-        appendLine("United Pay ID: ${txn.id}")
-        appendLine("Date & Time: $formattedDate")
-        if (!txn.note.isNullOrBlank()) {
-            appendLine("Note: ${txn.note}")
-        }
-        appendLine("------------------------------------------")
-        appendLine("NPCI & RBI Regulated | 256-Bit SSL Secured")
-        appendLine("==========================================")
-    }
-
-    val sendIntent = Intent(Intent.ACTION_SEND).apply {
-        type = "text/plain"
-        putExtra(Intent.EXTRA_SUBJECT, "United Pay Transaction Receipt - ₹${txn.amount}")
-        putExtra(Intent.EXTRA_TEXT, receiptText)
-    }
-    val chooser = Intent.createChooser(sendIntent, "Share UPI Transaction Receipt")
-    context.startActivity(chooser)
+    ReceiptShareHelper.shareReceipt(context, txn)
 }
