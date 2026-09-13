@@ -13,8 +13,10 @@ import android.graphics.Typeface
 import android.net.Uri
 import androidx.core.content.FileProvider
 import com.unitedpay.core.designsystem.R
+import com.unitedpay.core.model.PaymentStatus
 import com.unitedpay.core.model.TransactionType
 import com.unitedpay.core.model.UpiTransaction
+import com.unitedpay.core.model.session.UserSessionManager
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -329,5 +331,43 @@ object ReceiptShareHelper {
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         context.startActivity(chooser)
+    }
+
+    data class ReceiptDetails(
+        val title: String,
+        val amount: String,
+        val sender: String,
+        val receiver: String,
+        val utr: String,
+        val date: String,
+        val time: String,
+        val status: String = "SUCCESSFUL",
+        val bankName: String = "UnitedPay Partner Bank",
+        val paymentMode: String = "IMPS / Instant",
+        val note: String = ""
+    )
+
+    fun shareTransactionReceipt(context: Context, receiptDetails: ReceiptDetails) {
+        val cleanAmount = receiptDetails.amount.replace("₹", "").replace(",", "").trim().toDoubleOrNull() ?: 0.0
+        val activeProfile = UserSessionManager.getCurrentProfile()
+        val activeBank = UserSessionManager.getCurrentBankAccounts().firstOrNull()
+        val maskedAcc = activeBank?.accountNumberMasked ?: "•••• 4821"
+
+        val txn = UpiTransaction(
+            id = "UP/${receiptDetails.utr}",
+            utrNumber = receiptDetails.utr,
+            payeeName = receiptDetails.receiver,
+            payeeVpa = "${receiptDetails.receiver.lowercase().replace(" ", "").filter { it.isLetterOrDigit() }}@unitedpay",
+            payerName = receiptDetails.sender.ifBlank { activeProfile.fullName },
+            payerVpa = activeProfile.primaryVpa,
+            amount = cleanAmount,
+            timestamp = System.currentTimeMillis(),
+            status = PaymentStatus.SUCCESS,
+            type = TransactionType.DEBIT,
+            bankName = receiptDetails.bankName.ifBlank { activeBank?.bankName ?: "UnitedPay Partner Bank" },
+            bankAccountNumberMasked = maskedAcc,
+            note = receiptDetails.note
+        )
+        shareReceipt(context, txn)
     }
 }

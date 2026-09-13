@@ -710,4 +710,203 @@ object UnitedMockData {
         isConnected = true,
         availableLanguages = soundboxLanguages
     )
+
+    // ==========================================
+    // 12. AEPS (Aadhaar Enabled Payment System) Fixtures
+    // ==========================================
+    val aepsSupportedBanks = listOf(
+        AepsBank(iin = "607094", bankName = "State Bank of India", isPopular = true),
+        AepsBank(iin = "508544", bankName = "Assam Gramin Vikash Bank", isPopular = true),
+        AepsBank(iin = "508534", bankName = "Punjab National Bank", isPopular = true),
+        AepsBank(iin = "607153", bankName = "Axis Bank", isPopular = true),
+        AepsBank(iin = "504000", bankName = "HDFC Bank", isPopular = true),
+        AepsBank(iin = "508532", bankName = "ICICI Bank", isPopular = false),
+        AepsBank(iin = "607152", bankName = "Canara Bank", isPopular = false),
+        AepsBank(iin = "607189", bankName = "Union Bank of India", isPopular = false)
+    )
+
+    val aepsStatementEntries = listOf(
+        AepsStatementEntry("12 Sep", "DBTL LPG Gas Subsidy", "CR", 300.00, 24850.50, true),
+        AepsStatementEntry("10 Sep", "Cash Withdrawal (AEPS BC)", "DR", 2000.00, 24550.50, false),
+        AepsStatementEntry("08 Sep", "PM-KISAN 17th Installment", "CR", 2000.00, 26550.50, true),
+        AepsStatementEntry("05 Sep", "APDCL Electricity Bill", "DR", 1450.00, 24550.50, false),
+        AepsStatementEntry("01 Sep", "Direct Remittance Credit", "CR", 15000.00, 26000.50, true)
+    )
+
+    val rdServiceDevices = listOf(
+        RdServiceDevice("mfs100", "Mantra MFS100 Optical", isConnected = true, qualityScore = 92),
+        RdServiceDevice("morpho1300", "Idemia Morpho MSO1300 E3", isConnected = false, qualityScore = 88),
+        RdServiceDevice("startek220", "Startek FM220 Bio", isConnected = false, qualityScore = 85)
+    )
+
+    // ==========================================
+    // 13. DMT (Domestic Money Transfer) Fixtures
+    // ==========================================
+    val dmtSenderProfile = DmtSender(
+        mobileNumber = "6002239926",
+        fullName = "Arunjyoti Changkakoty",
+        kycTier = "Full KYC Biometric Verified",
+        monthlyLimit = 200000.0,
+        usedLimit = 35000.0
+    )
+
+    val dmtBeneficiaries = listOf(
+        DmtBeneficiary("ben_01", "Pranjal Changkakoty", "30891245678", "SBIN0000123", "State Bank of India", isVerified = true),
+        DmtBeneficiary("ben_02", "Dhrubajyoti Baruah", "50100234567890", "HDFC0001245", "HDFC Bank", isVerified = true),
+        DmtBeneficiary("ben_03", "Jonali Saikia", "702981442109", "AGVB0001002", "Assam Gramin Vikash Bank", isVerified = true)
+    )
+
+    // ==========================================
+    // 14. Micro-ATM Terminal Fixture
+    // ==========================================
+    val microAtmTerminal = MicroAtmTerminal(
+        terminalId = "HKL-MATM-781024",
+        serialNumber = "D180-BT-982104",
+        modelName = "Hookolu mPOS D180 Pro",
+        batteryLevel = 88,
+        isPaired = true,
+        connectionType = "Bluetooth 5.0 Encrypted"
+    )
+
+    // ==========================================
+    // 15. Partner Bank Account Opening Fixtures
+    // ==========================================
+    val partnerBanks = listOf(
+        PartnerBank(
+            id = "pb_au",
+            bankName = "AU Small Finance Bank",
+            accountType = "AU Digital Savings Account",
+            minInitialDeposit = 0.0,
+            interestRate = "Up to 7.25% p.a.",
+            features = listOf("Zero Balance Account", "Free Virtual RuPay Platinum Card", "Instant Video KYC", "Unlimited Free NEFT/RTGS")
+        ),
+        PartnerBank(
+            id = "pb_equitas",
+            bankName = "Equitas Small Finance Bank",
+            accountType = "Selfie Savings Account",
+            minInitialDeposit = 1000.0,
+            interestRate = "Up to 7.00% p.a.",
+            features = listOf("Instant A/c Number & Virtual Card", "High Interest Yield", "Cashback on UPI spends", "Free ATM withdrawals")
+        ),
+        PartnerBank(
+            id = "pb_sbi",
+            bankName = "State Bank of India (BC CSP)",
+            accountType = "PMJDY Basic Financial Account",
+            minInitialDeposit = 0.0,
+            interestRate = "2.70% p.a.",
+            features = listOf("Government DBTL Subsidy Direct", "RuPay PMJDY Card with Insurance", "No Minimum Balance Penalty")
+        )
+    )
+
+    // ==========================================
+    // 16. Embedded Lending & Loan Offers
+    // ==========================================
+    val userCreditScore = 785 // CIBIL Excellent
+    val loanOffers = listOf(
+        LoanOffer(
+            id = "loan_vyapar_01",
+            title = "Hookolu Vyapar Credit Line",
+            category = "Merchant Working Capital",
+            maxAmount = 200000.0,
+            interestRatePerMonth = 1.15,
+            processingFeeRate = 1.0,
+            minTenureMonths = 3,
+            maxTenureMonths = 12,
+            isPreApproved = true
+        ),
+        LoanOffer(
+            id = "loan_micro_02",
+            title = "Instant Personal Micro-Loan",
+            category = "Personal Quick Cash",
+            maxAmount = 50000.0,
+            interestRatePerMonth = 1.35,
+            processingFeeRate = 1.5,
+            minTenureMonths = 3,
+            maxTenureMonths = 6,
+            isPreApproved = true
+        )
+    )
+
+    // ==========================================
+    // 17. Travel & Transit Fixtures
+    // ==========================================
+    val busTrips = listOf(
+        BusTrip("bus_01", "ASTC Deluxe Volvo AC", "2+2 AC Seater", "07:00 AM", "10:30 AM", "3h 30m", "Guwahati (ISBT)", "Shillong", 350.0, 14, "Paltan Bazar"),
+        BusTrip("bus_02", "Network Travels Multi-Axle", "AC Sleeper (2+1)", "08:30 PM", "05:00 AM", "8h 30m", "Guwahati (Khanapara)", "Jorhat", 750.0, 8, "Khanapara Flyover"),
+        BusTrip("bus_03", "Blue Hill Travels", "Luxury Sleeper", "09:00 PM", "07:00 AM", "10h 00m", "Guwahati (ISBT)", "Dibrugarh", 950.0, 6, "Beltola Chariali")
+    )
+
+    val flightTrips = listOf(
+        FlightTrip("fl_01", "IndiGo", "6E-205", "10:15 AM", "11:30 AM", "1h 15m", "GAU (Guwahati)", "CCU (Kolkata)", 3450.0),
+        FlightTrip("fl_02", "Air India", "AI-732", "02:40 PM", "05:25 PM", "2h 45m", "GAU (Guwahati)", "DEL (New Delhi)", 5890.0),
+        FlightTrip("fl_03", "SpiceJet", "SG-816", "06:10 PM", "09:40 PM", "3h 30m", "GAU (Guwahati)", "BLR (Bengaluru)", 6420.0)
+    )
+
+    val trainTrips = listOf(
+        TrainTrip("12346", "Saraighat Express", "12:20 PM", "05:15 AM (+1)", "16h 55m", "Guwahati (GHY)", "Howrah (HWH)", listOf("2A", "3A", "SL")),
+        TrainTrip("20602", "Vande Bharat Express", "04:30 PM", "10:00 PM", "5h 30m", "Guwahati (GHY)", "New Jalpaiguri (NJP)", listOf("CC", "EC")),
+        TrainTrip("15658", "Brahmaputra Mail", "02:55 PM", "04:35 AM (+2)", "37h 40m", "Kamakhya (KYQ)", "Delhi (DLI)", listOf("2A", "3A", "SL"))
+    )
+
+    val hotelProperties = listOf(
+        HotelProperty("ht_01", "Radisson Blu Guwahati", "Guwahati", "Gotanagar, NH 37", 4.6, 5200.0, listOf("Pool", "Free WiFi", "Breakfast", "Spa")),
+        HotelProperty("ht_02", "Vivanta Guwahati", "Guwahati", "Khanapara, GS Road", 4.7, 6800.0, listOf("Fine Dining", "Gym", "Bar", "Valet")),
+        HotelProperty("ht_03", "Pinewood Hotel", "Shillong", "European Ward, Shillong", 4.4, 3900.0, listOf("Heritage", "Pine View", "Heater", "WiFi"))
+    )
+
+    // ==========================================
+    // 18. Retailer & BC Merchant Operations Fixtures
+    // ==========================================
+    val retailerMetrics = RetailerMetrics(
+        agentId = "HKL-RET-AS089",
+        merchantName = "Arunjyoti Enterprise / Digital Seva",
+        todayTxnCount = 18,
+        todayVolume = 42850.00,
+        todayCommission = 340.50,
+        walletBalance = 18450.00,
+        primarySettlementBank = "State Bank of India",
+        primarySettlementAccountMasked = "•••• 4821"
+    )
+
+    val retailerCommissionSlabs = listOf(
+        RetailerCommissionSlab("AEPS Cash Out", "₹2.00 - ₹10.00 slab margin", 168.00),
+        RetailerCommissionSlab("DMT Money Transfer", "0.40% flat margin", 92.50),
+        RetailerCommissionSlab("BBPS Bill Payments", "₹1.50 flat per bill", 38.00),
+        RetailerCommissionSlab("Mobile & DTH Recharge", "2.5% instant cashback", 42.00)
+    )
+
+    val customerKhataEntries = listOf(
+        CustomerKhataEntry("kht_01", "Bhaskar Kalita", "+91 94350 12890", 450.00, true, "12 Sep", "2x LED Bulbs & Aadhaar Cash"),
+        CustomerKhataEntry("kht_02", "Minoti Bora", "+91 98640 55431", 1200.00, true, "10 Sep", "DMT to Son (Guwahati)"),
+        CustomerKhataEntry("kht_03", "Diganta Deka", "+91 97060 99812", 800.00, false, "09 Sep", "Cash repaid in full")
+    )
+
+    // ==========================================
+    // 19. Extra BBPS Services (LPG, Education, Subscriptions)
+    // ==========================================
+    val lpgDetails = LpgBookingDetails(
+        consumerId = "17290184920491024",
+        providerName = "Indane LPG Gas",
+        consumerName = "Arunjyoti Changkakoty",
+        cylinderSize = "14.2 KG Domestic Refill",
+        price = 860.50,
+        subsidyEstimated = 200.00,
+        deliveryAddress = "House No 42, Zoo Road Tiniali, Guwahati, Assam - 781024"
+    )
+
+    val educationFeeDetails = EducationFeeDetails(
+        instituteId = "inst_cotton",
+        instituteName = "Cotton University, Guwahati",
+        studentName = "Ananya Changkakoty",
+        rollNumber = "CTN-2024-892",
+        academicTerm = "Semester 3 Tuition & Examination Fee",
+        totalFee = 12400.00,
+        dueDate = "28 Sep 2026"
+    )
+
+    val subscriptionPlans = listOf(
+        SubscriptionPlan("sub_hotstar", "Disney+ Hotstar", "Super Annual Plan", "1 Year", 899.00, "Yearly"),
+        SubscriptionPlan("sub_sonyliv", "SonyLIV Premium", "All Access Annual", "1 Year", 999.00, "Yearly"),
+        SubscriptionPlan("sub_zee5", "Zee5 Premium", "Mega Entertainment", "1 Year", 699.00, "Yearly")
+    )
 }

@@ -29,7 +29,6 @@ import com.unitedpay.core.common.result.Resource
 import com.unitedpay.core.designsystem.theme.*
 import com.unitedpay.core.model.FintechNotificationItem
 import com.unitedpay.core.model.api.UnitedPayApi
-import com.unitedpay.core.model.mock.UnitedMockData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

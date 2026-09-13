@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">United Pay</string>
+    <string name="brand_tagline">HookoluPay Rural &amp; Semi-Urban Financial Super-App</string>
+    <string name="banking_inclusion">Banking &amp; Financial Inclusion</string>
+    <string name="aeps_title">Aadhaar Enabled Payment System</string>
+    <string name="dmt_title">Domestic Money Transfer</string>
+    <string name="micro_atm_title">Micro-ATM / mPOS</string>
+    <string name="lending_title">Hookolu Vyapar Credit Line</string>
+    <string name="retailer_title">Merchant &amp; BC Agent Hub</string>
+</resources>

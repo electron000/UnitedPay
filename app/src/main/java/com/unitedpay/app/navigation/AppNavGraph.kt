@@ -1,6 +1,7 @@
 package com.unitedpay.app.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -8,7 +9,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.unitedpay.feature.auth.SimBindingScreen
-import com.unitedpay.feature.auth.SplashScreen
 // Feature Home & Hubs
 import com.unitedpay.feature.home.AllServicesScreen
 import com.unitedpay.feature.home.CardsScreen
@@ -27,6 +27,7 @@ import com.unitedpay.feature.home.services.transfers.CheckBalanceScreen
 import com.unitedpay.feature.home.services.transfers.DigitalRupeeScreen
 import com.unitedpay.feature.home.services.transfers.RequestMoneyScreen
 import com.unitedpay.feature.home.services.transfers.SelfTransferScreen
+import com.unitedpay.feature.home.services.transfers.ToMobileScreen
 
 // Recharge Domain
 import com.unitedpay.feature.home.services.recharge.FastagScreen
@@ -52,12 +53,25 @@ import com.unitedpay.feature.home.services.financial.MutualFundsScreen
 // Promotions Domain
 import com.unitedpay.feature.home.services.promotions.GiftCardsScreen
 import com.unitedpay.feature.home.services.promotions.OffersScreen
+import com.unitedpay.feature.home.services.promotions.ReferWinScreen
 import com.unitedpay.feature.home.services.promotions.RewardsScreen
 
 // Communications Domain
 import com.unitedpay.feature.home.communications.ChatDetailScreen
 import com.unitedpay.feature.home.communications.MessagesScreen
 import com.unitedpay.feature.home.communications.NotificationsScreen
+
+// Hookolu Multi-Service Domain Screens
+import com.unitedpay.feature.home.services.banking.AepsScreen
+import com.unitedpay.feature.home.services.banking.DmtScreen
+import com.unitedpay.feature.home.services.banking.MicroAtmScreen
+import com.unitedpay.feature.home.services.banking.BankAccountOpeningScreen
+import com.unitedpay.feature.home.services.financial.LendingScreen
+import com.unitedpay.feature.home.services.travel.TravelHubScreen
+import com.unitedpay.feature.home.services.retailer.RetailerDashboardScreen
+import com.unitedpay.feature.home.services.utilities.LpgCylinderScreen
+import com.unitedpay.feature.home.services.utilities.EducationFeesScreen
+import com.unitedpay.feature.home.services.utilities.SubscriptionsScreen
 
 // Profile Domain
 import com.unitedpay.feature.home.profile.BiometricLockScreen
@@ -94,6 +108,7 @@ sealed class Screen(val route: String) {
     object Offers : Screen("offers")
     object Rewards : Screen("rewards")
     object GiftCards : Screen("gift_cards")
+    object ReferWin : Screen("refer_win")
 
     // Cards Hub Sub-flows
     object AddCard : Screen("add_card")
@@ -105,6 +120,7 @@ sealed class Screen(val route: String) {
     object Electricity : Screen("electricity")
     object Dth : Screen("dth")
     object CreditCard : Screen("credit_card_bill")
+    object ToMobile : Screen("to_mobile")
     object BankTransfer : Screen("bank_transfer")
     object SelfTransfer : Screen("self_transfer")
     object AddMoney : Screen("add_money")
@@ -123,6 +139,20 @@ sealed class Screen(val route: String) {
     object MutualFunds : Screen("mutual_funds")
     object Metro : Screen("metro")
     object MunicipalTax : Screen("municipal_tax")
+
+    // Hookolu Multi-Service Hub Screens
+    object Aeps : Screen("aeps")
+    object Dmt : Screen("dmt")
+    object MicroAtm : Screen("micro_atm")
+    object BankAccountOpening : Screen("bank_account_opening")
+    object Lending : Screen("lending")
+    object TravelHub : Screen("travel_hub?initialTab={initialTab}") {
+        fun createRoute(initialTab: String = "BUS") = "travel_hub?initialTab=$initialTab"
+    }
+    object RetailerDashboard : Screen("retailer_dashboard")
+    object LpgCylinder : Screen("lpg_cylinder")
+    object EducationFees : Screen("education_fees")
+    object Subscriptions : Screen("subscriptions")
 
     // Profile Sub-Screens
     object MyQr : Screen("my_qr")
@@ -149,52 +179,25 @@ sealed class Screen(val route: String) {
 @Composable
 fun AppNavGraph(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = Screen.Splash.route
+    startDestination: String = if (com.unitedpay.core.model.session.UserSessionManager.isLoggedIn) Screen.Home.route else Screen.SimBinding.route
 ) {
     NavHost(
         navController = navController,
         startDestination = startDestination
     ) {
-        // App Launch: Animated Brand Splash
+        // Instant fallback redirection if Screen.Splash.route is ever invoked (no animation)
         composable(Screen.Splash.route) {
-            val context = androidx.compose.ui.platform.LocalContext.current
-            val activity = context as? androidx.fragment.app.FragmentActivity
-            SplashScreen(
-                onSplashFinished = {
-                    if (com.unitedpay.core.model.session.UserSessionManager.isLoggedIn) {
-                        if (com.unitedpay.core.model.session.UserSessionManager.isCurrentBiometricEnabled && activity != null && com.unitedpay.core.security.biometric.BiometricAuthHelper.canAuthenticate(activity)) {
-                            com.unitedpay.core.security.biometric.BiometricAuthHelper.showBiometricPrompt(
-                                activity = activity,
-                                title = "Unlock UnitedPay",
-                                subtitle = "Touch fingerprint sensor to continue",
-                                onSuccess = {
-                                    navController.navigate(Screen.Home.route) {
-                                        popUpTo(Screen.Splash.route) { inclusive = true }
-                                    }
-                                },
-                                onCancel = {
-                                    navController.navigate(Screen.SimBinding.route) {
-                                        popUpTo(Screen.Splash.route) { inclusive = true }
-                                    }
-                                },
-                                onError = { _, _ ->
-                                    navController.navigate(Screen.Home.route) {
-                                        popUpTo(Screen.Splash.route) { inclusive = true }
-                                    }
-                                }
-                            )
-                        } else {
-                            navController.navigate(Screen.Home.route) {
-                                popUpTo(Screen.Splash.route) { inclusive = true }
-                            }
-                        }
-                    } else {
-                        navController.navigate(Screen.SimBinding.route) {
-                            popUpTo(Screen.Splash.route) { inclusive = true }
-                        }
+            LaunchedEffect(Unit) {
+                if (com.unitedpay.core.model.session.UserSessionManager.isLoggedIn) {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                } else {
+                    navController.navigate(Screen.SimBinding.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
                     }
                 }
-            )
+            }
         }
         // Tab 1: Home
         composable(Screen.Home.route) {
@@ -232,12 +235,29 @@ fun AppNavGraph(
                 onNavigateToCheckBalance = { navController.navigate(Screen.CheckBalance.route) },
                 onNavigateToAutopay = { navController.navigate(Screen.Autopay.route) },
                 onNavigateToDigitalRupee = { navController.navigate(Screen.DigitalRupee.route) },
+                onNavigateToDigitalGold = { navController.navigate(Screen.DigitalGold.route) },
                 onNavigateToRequestMoney = { navController.navigate(Screen.RequestMoney.route) },
                 onNavigateToOffers = { navController.navigate(Screen.Offers.route) },
                 onNavigateToRewards = { navController.navigate(Screen.Rewards.route) },
                 onNavigateToGiftCards = { navController.navigate(Screen.GiftCards.route) },
                 onNavigateToMessages = { navController.navigate(Screen.Messages.route) },
-                onNavigateToNotifications = { navController.navigate(Screen.Notifications.route) }
+                onNavigateToNotifications = { navController.navigate(Screen.Notifications.route) },
+                onNavigateToAeps = { _ -> navController.navigate(Screen.Aeps.route) },
+                onNavigateToMicroAtm = { navController.navigate(Screen.MicroAtm.route) },
+                onNavigateToDmt = { navController.navigate(Screen.Dmt.route) },
+                onNavigateToBankAccountOpening = { navController.navigate(Screen.BankAccountOpening.route) },
+                onNavigateToLending = { navController.navigate(Screen.Lending.route) },
+                onNavigateToTravel = { tab -> navController.navigate(Screen.TravelHub.createRoute(tab)) },
+                onNavigateToRetailerDashboard = { navController.navigate(Screen.RetailerDashboard.route) },
+                onNavigateToLpgCylinder = { navController.navigate(Screen.LpgCylinder.route) },
+                onNavigateToEducationFees = { navController.navigate(Screen.EducationFees.route) },
+                onNavigateToSubscriptions = { navController.navigate(Screen.Subscriptions.route) },
+                onNavigateToMutualFunds = { navController.navigate(Screen.MutualFunds.route) },
+                onNavigateToInsurance = { navController.navigate(Screen.Insurance.route) },
+                onNavigateToFastag = { navController.navigate(Screen.Fastag.route) },
+                onNavigateToWaterBill = { navController.navigate(Screen.WaterBill.route) },
+                onNavigateToReferEarn = { navController.navigate(Screen.ReferWin.route) },
+                onNavigateToToMobile = { navController.navigate(Screen.ToMobile.route) }
             )
         }
 
@@ -384,10 +404,24 @@ fun AppNavGraph(
                         "insurance" -> navController.navigate(Screen.Insurance.route)
                         "digital_gold" -> navController.navigate(Screen.DigitalGold.route)
                         "mutual_funds", "stocks" -> navController.navigate(Screen.MutualFunds.route)
-                        "metro", "train", "flight", "bus", "hotels", "movie" -> navController.navigate(Screen.Metro.route)
+                        "metro", "movie" -> navController.navigate(Screen.Metro.route)
+                        "bus" -> navController.navigate(Screen.TravelHub.createRoute("BUS"))
+                        "flight" -> navController.navigate(Screen.TravelHub.createRoute("FLIGHT"))
+                        "train" -> navController.navigate(Screen.TravelHub.createRoute("TRAIN"))
+                        "hotels" -> navController.navigate(Screen.TravelHub.createRoute("HOTEL"))
+                        "aeps", "aeps_cash_withdrawal", "aeps_balance", "aeps_statement" -> navController.navigate(Screen.Aeps.route)
+                        "micro_atm", "mpos" -> navController.navigate(Screen.MicroAtm.route)
+                        "dmt", "money_transfer" -> navController.navigate(Screen.Dmt.route)
+                        "bank_account", "account_opening" -> navController.navigate(Screen.BankAccountOpening.route)
+                        "lending", "loans", "vyapar_credit" -> navController.navigate(Screen.Lending.route)
+                        "retailer", "merchant_hub", "commission" -> navController.navigate(Screen.RetailerDashboard.route)
+                        "cylinder", "lpg" -> navController.navigate(Screen.LpgCylinder.route)
+                        "education", "fees" -> navController.navigate(Screen.EducationFees.route)
+                        "subscriptions", "ott" -> navController.navigate(Screen.Subscriptions.route)
                         "municipal_tax" -> navController.navigate(Screen.MunicipalTax.route)
                         "offers" -> navController.navigate(Screen.Offers.route)
-                        "rewards", "refer" -> navController.navigate(Screen.Rewards.route)
+                        "rewards" -> navController.navigate(Screen.Rewards.route)
+                        "refer" -> navController.navigate(Screen.ReferWin.route)
                         else -> navController.navigate(Screen.Recharge.route)
                     }
                 }
@@ -405,6 +439,10 @@ fun AppNavGraph(
 
         composable(Screen.GiftCards.route) {
             GiftCardsScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable(Screen.ReferWin.route) {
+            ReferWinScreen(onBackClick = { navController.popBackStack() })
         }
 
         // Dedicated Cards Sub-flows
@@ -507,7 +545,10 @@ fun AppNavGraph(
         }
 
         composable(Screen.RequestMoney.route) {
-            RequestMoneyScreen(onBackClick = { navController.popBackStack() })
+            RequestMoneyScreen(
+                onBackClick = { navController.popBackStack() },
+                onNavigateToMyQr = { navController.navigate(Screen.MyQr.route) }
+            )
         }
 
         // Dedicated Profile Pages
@@ -538,6 +579,19 @@ fun AppNavGraph(
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.SimBinding.route) { inclusive = true }
                     }
+                }
+            )
+        }
+
+        // To Mobile / Pay to Contact (Paytm & GPay Standard)
+        composable(Screen.ToMobile.route) {
+            ToMobileScreen(
+                onBackClick = { navController.popBackStack() },
+                onSelectContact = { name, vpa ->
+                    navController.navigate(Screen.Payment.createRoute(vpa = vpa, name = name))
+                },
+                onNavigateToQrScan = {
+                    navController.navigate(Screen.QrScanner.route)
                 }
             )
         }
@@ -629,6 +683,61 @@ fun AppNavGraph(
                     navController.navigate(Screen.Payment.createRoute(vpa = txn.payeeVpa, name = txn.payeeName))
                 }
             )
+        }
+
+        // ==========================================
+        // Hookolu Multi-Service Dedicated Screens
+        // ==========================================
+        composable(Screen.Aeps.route) {
+            AepsScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable(Screen.Dmt.route) {
+            DmtScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable(Screen.MicroAtm.route) {
+            MicroAtmScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable(Screen.BankAccountOpening.route) {
+            BankAccountOpeningScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable(Screen.Lending.route) {
+            LendingScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable(
+            route = Screen.TravelHub.route,
+            arguments = listOf(
+                navArgument("initialTab") {
+                    type = NavType.StringType
+                    defaultValue = "BUS"
+                }
+            )
+        ) { backStackEntry ->
+            val initialTab = backStackEntry.arguments?.getString("initialTab") ?: "BUS"
+            TravelHubScreen(
+                initialTab = initialTab,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable(Screen.RetailerDashboard.route) {
+            RetailerDashboardScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable(Screen.LpgCylinder.route) {
+            LpgCylinderScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable(Screen.EducationFees.route) {
+            EducationFeesScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable(Screen.Subscriptions.route) {
+            SubscriptionsScreen(onBackClick = { navController.popBackStack() })
         }
     }
 }

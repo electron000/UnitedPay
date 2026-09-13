@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.unitedpay.core.designsystem.components.UnitedIcons
@@ -40,35 +41,29 @@ import com.unitedpay.core.designsystem.theme.UnitedTextPrimary
 import kotlinx.coroutines.launch
 
 /**
- * 3-Page Swipeable Money Control Carousel with 12 UPI Quick Actions:
- * - Manual sliding (swipe left/right) without auto-moving
- * - 3 interactive pagination dots with animated active indicator
+ * 2-Page Swipeable Money Control Carousel with 8 Pure UPI & Banking Actions:
+ * - Manual sliding (swipe left/right) with smooth gestures
+ * - 2 interactive pagination dots with animated active indicator
  * - 4 Cobalt circular action buttons per page
  *
- * Page 1: Pay Money, Request Money, Add Money, Check Balance
- * Page 2: To Self A/C, To Bank A/C, Recharge, Electricity
- * Page 3: DTH / Cable, Credit Card, Digital Rupee, Autopay
+ * Page 1: To Mobile, To Bank A/C, To Self A/C, Check Balance
+ * Page 2: Request Money, UPI Lite, Credit Card, UPI Autopay
  */
 @Composable
 fun MoneyControlSection(
-    // Page 1
+    // Page 1: Core Transfers & Balance
     onPayMoneyClick: () -> Unit,
+    onBankTransferClick: () -> Unit,
+    onSelfTransferClick: () -> Unit,
+    onCheckBalanceClick: () -> Unit,
+    // Page 2: UPI Utilities & Mandates
     onRequestMoneyClick: () -> Unit,
     onAddMoneyClick: () -> Unit,
-    onCheckBalanceClick: () -> Unit,
-    // Page 2
-    onSelfTransferClick: () -> Unit = {},
-    onBankTransferClick: () -> Unit = {},
-    onRechargeClick: () -> Unit = {},
-    onElectricityClick: () -> Unit = {},
-    // Page 3
-    onTvCableClick: () -> Unit = {},
-    onCreditCardClick: () -> Unit = {},
-    onDigitalRupeeClick: () -> Unit = {},
-    onAutopayClick: () -> Unit = {},
+    onCreditCardClick: () -> Unit,
+    onAutopayClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val pagerState = rememberPagerState(pageCount = { 3 })
+    val pagerState = rememberPagerState(pageCount = { 2 })
     val coroutineScope = rememberCoroutineScope()
 
     Column(modifier = modifier.fillMaxWidth()) {
@@ -80,14 +75,14 @@ fun MoneyControlSection(
             modifier = Modifier.padding(start = 4.dp, bottom = 12.dp)
         )
 
-        // 3-Page Swipeable Action Matrix (Manual Swipe / Gesture-driven)
+        // 2-Page Swipeable Action Matrix (Manual Swipe / Gesture-driven)
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxWidth()
         ) { page ->
             when (page) {
                 0 -> {
-                    // Page 1: Primary Transfers
+                    // Page 1: Primary Transfers & Balance
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -95,22 +90,22 @@ fun MoneyControlSection(
                     ) {
                         MoneyActionButton(
                             icon = UnitedIcons.ArrowTopRight,
-                            label = "Pay Money",
+                            label = "To Mobile",
                             onClick = onPayMoneyClick,
                             iconTint = UnitedSagePill,
                             modifier = Modifier.weight(1f)
                         )
                         MoneyActionButton(
-                            icon = UnitedIcons.ArrowBottomLeft,
-                            label = "Request Money",
-                            onClick = onRequestMoneyClick,
+                            icon = UnitedIcons.BankTransfer,
+                            label = "To Bank A/C",
+                            onClick = onBankTransferClick,
                             iconTint = UnitedLimeAccent,
                             modifier = Modifier.weight(1f)
                         )
                         MoneyActionButton(
-                            icon = UnitedIcons.Plus,
-                            label = "Add Money",
-                            onClick = onAddMoneyClick,
+                            icon = UnitedIcons.SelfTransfer,
+                            label = "To Self A/C",
+                            onClick = onSelfTransferClick,
                             iconTint = UnitedLimeAccent,
                             modifier = Modifier.weight(1f)
                         )
@@ -124,67 +119,38 @@ fun MoneyControlSection(
                     }
                 }
                 1 -> {
-                    // Page 2: Banking & Key Utilities
+                    // Page 2: UPI Utilities & Mandates
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.Top
                     ) {
                         MoneyActionButton(
-                            icon = UnitedIcons.SelfTransfer,
-                            label = "To Self A/C",
-                            onClick = onSelfTransferClick,
+                            icon = UnitedIcons.ArrowBottomLeft,
+                            label = "Request Money",
+                            onClick = onRequestMoneyClick,
+                            iconTint = UnitedLimeAccent,
                             modifier = Modifier.weight(1f)
                         )
                         MoneyActionButton(
-                            icon = UnitedIcons.BankTransfer,
-                            label = "To Bank A/C",
-                            onClick = onBankTransferClick,
-                            modifier = Modifier.weight(1f)
-                        )
-                        MoneyActionButton(
-                            icon = UnitedIcons.Recharge,
-                            label = "Recharge",
-                            onClick = onRechargeClick,
-                            modifier = Modifier.weight(1f)
-                        )
-                        MoneyActionButton(
-                            icon = UnitedIcons.Electricity,
-                            label = "Electricity",
-                            onClick = onElectricityClick,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
-                2 -> {
-                    // Page 3: Bills & Digital Currency
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        MoneyActionButton(
-                            icon = UnitedIcons.TvCable,
-                            label = "DTH / Cable",
-                            onClick = onTvCableClick,
+                            icon = UnitedIcons.Plus,
+                            label = "UPI Lite",
+                            onClick = onAddMoneyClick,
+                            iconTint = UnitedLimeAccent,
                             modifier = Modifier.weight(1f)
                         )
                         MoneyActionButton(
                             icon = UnitedIcons.Cards,
                             label = "Credit Card",
                             onClick = onCreditCardClick,
-                            modifier = Modifier.weight(1f)
-                        )
-                        MoneyActionButton(
-                            icon = UnitedIcons.Crypto,
-                            label = "Digital Rupee",
-                            onClick = onDigitalRupeeClick,
+                            iconTint = UnitedLimeAccent,
                             modifier = Modifier.weight(1f)
                         )
                         MoneyActionButton(
                             icon = UnitedIcons.Autopay,
-                            label = "Autopay",
+                            label = "UPI Autopay",
                             onClick = onAutopayClick,
+                            iconTint = UnitedLimeAccent,
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -194,13 +160,13 @@ fun MoneyControlSection(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Interactive 3-Dot Indicator (Manual swipe synchronization + Click to jump)
+        // Interactive 2-Dot Indicator (Manual swipe synchronization + Click to jump)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            repeat(3) { index ->
+            repeat(2) { index ->
                 val isSelected = pagerState.currentPage == index
                 val dotWidth by animateDpAsState(
                     targetValue = if (isSelected) 18.dp else 6.dp,
@@ -219,7 +185,7 @@ fun MoneyControlSection(
                             }
                         }
                 )
-                if (index < 2) {
+                if (index < 1) {
                     Spacer(modifier = Modifier.width(6.dp))
                 }
             }
@@ -240,11 +206,11 @@ private fun MoneyActionButton(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
-            .padding(horizontal = 2.dp, vertical = 2.dp)
+            .padding(horizontal = 1.dp, vertical = 2.dp)
     ) {
         Box(
             modifier = Modifier
-                .size(56.dp)
+                .size(54.dp)
                 .shadow(
                     elevation = 6.dp,
                     shape = CircleShape,
@@ -259,18 +225,21 @@ private fun MoneyActionButton(
                 imageVector = icon,
                 contentDescription = label,
                 tint = iconTint,
-                modifier = Modifier.size(26.dp)
+                modifier = Modifier.size(25.dp)
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(7.dp))
         Text(
             text = label,
-            fontSize = 11.5.sp,
+            fontSize = 10.5.sp,
             fontWeight = FontWeight.SemiBold,
             color = Color(0xFF111827),
             textAlign = TextAlign.Center,
-            lineHeight = 14.sp,
-            maxLines = 2
+            letterSpacing = (-0.2).sp,
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }

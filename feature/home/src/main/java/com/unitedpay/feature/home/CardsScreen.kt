@@ -68,7 +68,6 @@ import com.unitedpay.core.designsystem.theme.UnitedTextPrimary
 import com.unitedpay.core.designsystem.theme.UnitedTextSecondary
 import com.unitedpay.core.designsystem.theme.UnitedWhite
 import com.unitedpay.core.model.api.UnitedPayApi
-import com.unitedpay.core.model.mock.UnitedMockData
 
 /**
  * Dedicated Cards Screen corresponding to the "Cards" tab in the bottom navigation bar.

@@ -54,7 +54,6 @@ import java.util.Locale
 import com.unitedpay.core.common.result.Resource
 import com.unitedpay.core.model.ChatMessage
 import com.unitedpay.core.model.api.UnitedPayApi
-import com.unitedpay.core.model.mock.UnitedMockData
 import com.unitedpay.core.model.session.UserSessionManager
 
 @OptIn(ExperimentalMaterial3Api::class)

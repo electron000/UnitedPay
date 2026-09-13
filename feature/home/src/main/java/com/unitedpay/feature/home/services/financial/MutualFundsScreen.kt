@@ -159,7 +159,7 @@ fun MutualFundsScreen(onBackClick: () -> Unit) {
         if (showMpinSheet && selectedFund != null) {
             val fund = selectedFund!!
             UnitedNpciMpinModalSheet(
-                subtitle = "Start SIP of ${fund.minSip}/month in ${fund.name}",
+                subtitle = "Start SIP of ${fund.minSip} in ${fund.name}",
                 onDismissRequest = { showMpinSheet = false },
                 onPinSubmitted = {
                     showMpinSheet = false
@@ -183,7 +183,7 @@ fun MutualFundsScreen(onBackClick: () -> Unit) {
                 accountMasked = maskedAcc,
                 transactionCategory = "Mutual Fund SIP",
                 onPaymentCompleted = { utr ->
-                    val cleanAmt = fund.minSip.replace("₹", "").replace(",", "").trim()
+                    val cleanAmt = fund.minSip.replace("₹", "").substringBefore("/").replace(",", "").trim()
                     val amtVal = cleanAmt.toDoubleOrNull() ?: 500.0
                     com.unitedpay.core.model.TransactionRepository.addTransaction(
                         com.unitedpay.core.model.UpiTransaction(

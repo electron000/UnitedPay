@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">यूनाइटेड पे</string>
+    <string name="brand_tagline">हुकोलूपे ग्रामीण और अर्ध-शहरी वित्तीय सुपर-ऐप</string>
+    <string name="banking_inclusion">बैंकिंग और वित्तीय समावेशन</string>
+    <string name="aeps_title">आधार सक्षम भुगतान प्रणाली</string>
+    <string name="dmt_title">घरेलू मनी ट्रांसफर</string>
+    <string name="micro_atm_title">माइक्रो-एटीएम / एम-पॉस</string>
+    <string name="lending_title">हुकोलू व्यापार क्रेडिट लाइन</string>
+    <string name="retailer_title">व्यापारी और बीसी केंद्र</string>
+</resources>

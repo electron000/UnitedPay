@@ -69,8 +69,27 @@ fun TransactionDetailScreen(
     val context = LocalContext.current
     val transaction: UpiTransaction = remember(transactionId) {
         TransactionRepository.getTransactionById(transactionId)
-            ?: UnitedMockData.initialTransactions.find { it.id == transactionId }
-            ?: UnitedMockData.initialTransactions.first()
+            ?: if (com.unitedpay.core.model.session.UserSessionManager.isSim1Active) {
+                UnitedMockData.initialTransactions.find { it.id == transactionId }
+                    ?: UnitedMockData.initialTransactions.first()
+            } else {
+                val activeProfile = com.unitedpay.core.model.session.UserSessionManager.getCurrentProfile()
+                val activeBank = com.unitedpay.core.model.session.UserSessionManager.getCurrentBankAccounts().firstOrNull()
+                UpiTransaction(
+                    id = transactionId,
+                    utrNumber = "420194820194",
+                    payeeName = "Recent Transaction",
+                    payeeVpa = "payee@upi",
+                    payerName = activeProfile.fullName,
+                    payerVpa = activeProfile.primaryVpa,
+                    amount = 0.0,
+                    timestamp = System.currentTimeMillis(),
+                    status = com.unitedpay.core.model.PaymentStatus.SUCCESS,
+                    type = TransactionType.DEBIT,
+                    bankName = activeBank?.bankName ?: "Bank",
+                    bankAccountNumberMasked = activeBank?.accountNumberMasked ?: "•••• 0000"
+                )
+            }
     }
 
     val isDebit = transaction.type == TransactionType.DEBIT

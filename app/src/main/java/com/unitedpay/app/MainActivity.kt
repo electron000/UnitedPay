@@ -16,12 +16,14 @@ import com.unitedpay.core.model.session.UserSessionManager
 class MainActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_Material3_Light_NoActionBar)
         super.onCreate(savedInstanceState)
 
         // Initialize UserSessionManager with persistence
         UserSessionManager.init(this)
 
         // Lock window status bar styling
+        @Suppress("DEPRECATION")
         window.statusBarColor = Color.parseColor("#0078DF")
         WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = false
 

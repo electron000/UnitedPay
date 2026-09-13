@@ -1302,6 +1302,315 @@ object UnitedIcons {
             }
         }.build()
     }
+
+    /**
+     * AEPS Biometric Fingerprint Scanner
+     */
+    val AepsFingerprint: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "AepsFingerprint",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f
+        ).apply {
+            val stroke = SolidColor(Color.Black)
+            val strokeWidth = 1.75f
+            path(stroke = stroke, strokeLineWidth = strokeWidth, strokeLineCap = StrokeCap.Round) {
+                // Outermost fingerprint loop
+                moveTo(12f, 2f)
+                curveTo(7f, 2f, 3f, 6.2f, 3f, 11.5f)
+                curveTo(3f, 14.5f, 4f, 17.5f, 5.5f, 20f)
+                // Right outer loop
+                moveTo(12f, 2f)
+                curveTo(17f, 2f, 21f, 6.2f, 21f, 11.5f)
+                curveTo(21f, 15f, 19.8f, 18.2f, 18.5f, 20.5f)
+                // Middle whorl
+                moveTo(12f, 6f)
+                curveTo(8.5f, 6f, 6f, 8.8f, 6f, 12.5f)
+                curveTo(6f, 15.2f, 7f, 18f, 8.5f, 21f)
+                // Right middle whorl
+                moveTo(12f, 6f)
+                curveTo(15.5f, 6f, 18f, 8.8f, 18f, 12.5f)
+                curveTo(18f, 14.5f, 17.2f, 16.5f, 16f, 18.5f)
+                // Inner core
+                moveTo(12f, 10f)
+                curveTo(10.5f, 10f, 9.5f, 11.2f, 9.5f, 13f)
+                curveTo(9.5f, 16.5f, 11f, 19f, 12f, 22f)
+                // Center arch
+                moveTo(12f, 10f)
+                curveTo(13.5f, 10f, 14.5f, 11.2f, 14.5f, 13f)
+                curveTo(14.5f, 15f, 13.8f, 17f, 13f, 19.5f)
+            }
+        }.build()
+    }
+
+    /**
+     * Micro-ATM / mPOS Card Swipe Reader
+     */
+    val MicroAtm: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "MicroAtm",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f
+        ).apply {
+            val stroke = SolidColor(Color.Black)
+            val strokeWidth = 1.75f
+            path(stroke = stroke, strokeLineWidth = strokeWidth, strokeLineCap = StrokeCap.Round, strokeLineJoin = StrokeJoin.Round) {
+                // POS body
+                moveTo(6f, 3f)
+                lineTo(18f, 3f)
+                curveTo(19.1f, 3f, 20f, 3.9f, 20f, 5f)
+                lineTo(20f, 19f)
+                curveTo(20f, 20.1f, 19.1f, 21f, 18f, 21f)
+                lineTo(6f, 21f)
+                curveTo(4.9f, 21f, 4f, 20.1f, 4f, 19f)
+                lineTo(4f, 5f)
+                curveTo(4f, 3.9f, 4.9f, 3f, 6f, 3f)
+                close()
+                // Screen
+                moveTo(7f, 6f)
+                lineTo(17f, 6f)
+                lineTo(17f, 11f)
+                lineTo(7f, 11f)
+                close()
+                // Keypad dots
+                moveTo(8f, 14f); lineTo(8.01f, 14f)
+                moveTo(12f, 14f); lineTo(12.01f, 14f)
+                moveTo(16f, 14f); lineTo(16.01f, 14f)
+                moveTo(8f, 17f); lineTo(8.01f, 17f)
+                moveTo(12f, 17f); lineTo(12.01f, 17f)
+                moveTo(16f, 17f); lineTo(16.01f, 17f)
+            }
+            // Card slot indicator at bottom
+            path(stroke = stroke, strokeLineWidth = 2f, strokeLineCap = StrokeCap.Round) {
+                moveTo(8f, 23f)
+                lineTo(16f, 23f)
+            }
+        }.build()
+    }
+
+    /**
+     * Domestic Money Transfer (DMT) - Rupee Transfer
+     */
+    val DmtTransfer: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "DmtTransfer",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f
+        ).apply {
+            val stroke = SolidColor(Color.Black)
+            val strokeWidth = 1.75f
+            path(stroke = stroke, strokeLineWidth = strokeWidth, strokeLineCap = StrokeCap.Round, strokeLineJoin = StrokeJoin.Round) {
+                // Bank outline
+                moveTo(3f, 9f); lineTo(12f, 4f); lineTo(21f, 9f)
+                moveTo(4f, 9f); lineTo(20f, 9f)
+                moveTo(6f, 9f); lineTo(6f, 16f)
+                moveTo(10f, 9f); lineTo(10f, 16f)
+                moveTo(14f, 9f); lineTo(14f, 16f)
+                moveTo(18f, 9f); lineTo(18f, 16f)
+                moveTo(3f, 16f); lineTo(21f, 16f)
+                // Forward transfer arrow
+                moveTo(8f, 20f); lineTo(16f, 20f)
+                moveTo(13f, 17.5f); lineTo(16f, 20f); lineTo(13f, 22.5f)
+            }
+        }.build()
+    }
+
+    /**
+     * Partner Bank Account Opening / CSP
+     */
+    val BankOpening: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "BankOpening",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f
+        ).apply {
+            val stroke = SolidColor(Color.Black)
+            val strokeWidth = 1.75f
+            path(stroke = stroke, strokeLineWidth = strokeWidth, strokeLineCap = StrokeCap.Round, strokeLineJoin = StrokeJoin.Round) {
+                // Shield / Document with plus
+                moveTo(12f, 2f)
+                lineTo(4f, 5f)
+                lineTo(4f, 12f)
+                curveTo(4f, 17f, 7.5f, 21.5f, 12f, 23f)
+                curveTo(16.5f, 21.5f, 20f, 17f, 20f, 12f)
+                lineTo(20f, 5f)
+                close()
+                // Plus inside shield
+                moveTo(12f, 8f); lineTo(12f, 16f)
+                moveTo(8f, 12f); lineTo(16f, 12f)
+            }
+        }.build()
+    }
+
+    /**
+     * Lending / Hookolu Vyapar Credit / Loan
+     */
+    val LendingHand: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "LendingHand",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f
+        ).apply {
+            val stroke = SolidColor(Color.Black)
+            val strokeWidth = 1.75f
+            path(stroke = stroke, strokeLineWidth = strokeWidth, strokeLineCap = StrokeCap.Round, strokeLineJoin = StrokeJoin.Round) {
+                // Hand offering
+                moveTo(2f, 14f)
+                lineTo(6f, 14f)
+                lineTo(10f, 17f)
+                lineTo(16f, 17f)
+                curveTo(17.5f, 17f, 19f, 15.5f, 19f, 14f)
+                curveTo(19f, 12.8f, 18.2f, 11.8f, 17f, 11.3f)
+                lineTo(13f, 10f)
+                lineTo(10f, 10f)
+                lineTo(7f, 12f)
+                // Coin above hand
+                moveTo(12f, 3f)
+                curveTo(14.2f, 3f, 16f, 4.8f, 16f, 7f)
+                curveTo(16f, 9.2f, 14.2f, 11f, 12f, 11f)
+                curveTo(9.8f, 11f, 8f, 9.2f, 8f, 7f)
+                curveTo(8f, 4.8f, 9.8f, 3f, 12f, 3f)
+                close()
+            }
+        }.build()
+    }
+
+    /**
+     * Education Fees / Graduation Cap
+     */
+    val EducationFees: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "EducationFees",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f
+        ).apply {
+            val stroke = SolidColor(Color.Black)
+            val strokeWidth = 1.75f
+            path(stroke = stroke, strokeLineWidth = strokeWidth, strokeLineCap = StrokeCap.Round, strokeLineJoin = StrokeJoin.Round) {
+                // Cap mortarboard diamond
+                moveTo(12f, 3f); lineTo(22f, 8f); lineTo(12f, 13f); lineTo(2f, 8f); close()
+                // Skull cap outline below
+                moveTo(6f, 10.5f); lineTo(6f, 16f); curveTo(6f, 18.5f, 8.7f, 20.5f, 12f, 20.5f); curveTo(15.3f, 20.5f, 18f, 18.5f, 18f, 16f); lineTo(18f, 10.5f)
+                // Tassel
+                moveTo(20f, 9.5f); lineTo(20f, 16f)
+            }
+        }.build()
+    }
+
+    /**
+     * OTT Subscriptions / Media
+     */
+    val SubscriptionsOtt: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "SubscriptionsOtt",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f
+        ).apply {
+            val stroke = SolidColor(Color.Black)
+            val strokeWidth = 1.75f
+            path(stroke = stroke, strokeLineWidth = strokeWidth, strokeLineCap = StrokeCap.Round, strokeLineJoin = StrokeJoin.Round) {
+                // TV Screen
+                moveTo(3f, 5f)
+                lineTo(21f, 5f)
+                curveTo(22.1f, 5f, 23f, 5.9f, 23f, 7f)
+                lineTo(23f, 17f)
+                curveTo(23f, 18.1f, 22.1f, 19f, 21f, 19f)
+                lineTo(3f, 19f)
+                curveTo(1.9f, 19f, 1f, 18.1f, 1f, 17f)
+                lineTo(1f, 7f)
+                curveTo(1f, 5.9f, 1.9f, 5f, 3f, 5f)
+                close()
+                // Play triangle inside
+                moveTo(10f, 9f); lineTo(15f, 12f); lineTo(10f, 15f); close()
+                // Stand
+                moveTo(9f, 22f); lineTo(15f, 22f)
+                moveTo(12f, 19f); lineTo(12f, 22f)
+            }
+        }.build()
+    }
+
+    /**
+     * Retailer Commission Ledger / Growth Chart
+     */
+    val CommissionChart: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "CommissionChart",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f
+        ).apply {
+            val stroke = SolidColor(Color.Black)
+            val strokeWidth = 1.75f
+            path(stroke = stroke, strokeLineWidth = strokeWidth, strokeLineCap = StrokeCap.Round, strokeLineJoin = StrokeJoin.Round) {
+                // Axes
+                moveTo(3f, 3f); lineTo(3f, 21f); lineTo(21f, 21f)
+                // Bar 1
+                moveTo(7f, 21f); lineTo(7f, 15f)
+                // Bar 2
+                moveTo(12f, 21f); lineTo(12f, 11f)
+                // Bar 3
+                moveTo(17f, 21f); lineTo(17f, 7f)
+                // Trend line
+                moveTo(7f, 14f); lineTo(12f, 10f); lineTo(17f, 6f); lineTo(20f, 7.5f)
+            }
+        }.build()
+    }
+
+    /**
+     * Instant Wallet-to-Bank Settlement Vault
+     */
+    val SettlementVault: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "SettlementVault",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f
+        ).apply {
+            val stroke = SolidColor(Color.Black)
+            val strokeWidth = 1.75f
+            path(stroke = stroke, strokeLineWidth = strokeWidth, strokeLineCap = StrokeCap.Round, strokeLineJoin = StrokeJoin.Round) {
+                // Vault safe body
+                moveTo(4f, 4f)
+                lineTo(20f, 4f)
+                curveTo(21.1f, 4f, 22f, 4.9f, 22f, 6f)
+                lineTo(22f, 18f)
+                curveTo(22f, 19.1f, 21.1f, 20f, 20f, 20f)
+                lineTo(4f, 20f)
+                curveTo(2.9f, 20f, 2f, 19.1f, 2f, 18f)
+                lineTo(2f, 6f)
+                curveTo(2f, 4.9f, 2.9f, 4f, 4f, 4f)
+                close()
+                // Central dial
+                moveTo(12f, 8f)
+                curveTo(14.2f, 8f, 16f, 9.8f, 16f, 12f)
+                curveTo(16f, 14.2f, 14.2f, 16f, 12f, 16f)
+                curveTo(9.8f, 16f, 8f, 14.2f, 8f, 12f)
+                curveTo(8f, 9.8f, 9.8f, 8f, 12f, 8f)
+                close()
+                // Dial spokes
+                moveTo(12f, 6f); lineTo(12f, 8f)
+                moveTo(12f, 16f); lineTo(12f, 18f)
+                moveTo(6f, 12f); lineTo(8f, 12f)
+                moveTo(16f, 12f); lineTo(18f, 12f)
+            }
+        }.build()
+    }
 }
 
 

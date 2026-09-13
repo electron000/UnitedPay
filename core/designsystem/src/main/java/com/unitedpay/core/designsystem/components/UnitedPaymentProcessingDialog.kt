@@ -132,8 +132,16 @@ fun UnitedPaymentProcessingDialog(
 
     val formattedAmount = remember(amount) {
         val clean = amount.replace("₹", "").trim()
-        val d = clean.toDoubleOrNull()
-        if (d != null) String.format(Locale.ENGLISH, "₹%,.2f", d) else "₹$amount"
+        val numericCandidate = clean.substringBefore("/").replace(",", "").trim()
+        val d = numericCandidate.toDoubleOrNull()
+        if (d != null) {
+            val suffix = if (clean.contains("/")) " / " + clean.substringAfter("/").trim() else ""
+            String.format(Locale.ENGLISH, "₹%,.2f", d) + suffix
+        } else if (clean.isNotEmpty()) {
+            "₹$clean"
+        } else {
+            "₹0.00"
+        }
     }
 
     LaunchedEffect(currentStep) {

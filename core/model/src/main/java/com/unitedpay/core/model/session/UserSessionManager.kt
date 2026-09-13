@@ -45,8 +45,13 @@ data class UserSessionData(
     val scratchCards: List<ScratchCardReward> = emptyList(),
     val disputeTickets: List<DisputeTicket> = emptyList(),
     val upiPin: String? = null,
-    val profilePicturePath: String? = null
+    val profilePicturePath: String? = null,
+    val walletBalance: Double = 14250.00,
+    val isCardFrozen: Boolean = false,
+    val retailerMetrics: RetailerMetrics? = null
 ) {
+    val formattedWalletBalance: String get() = "₹${String.format("%.2f", walletBalance)}"
+
     val userProfile: UserProfile
         get() = UserProfile(
             userId = userId,
@@ -80,6 +85,12 @@ object UserSessionManager {
     private const val KEY_SIM2_CHATS = "sim2_chats"
     private const val KEY_SIM2_NOTIFS = "sim2_notifs"
     private const val KEY_PROFILE_PIC_PREFIX = "profile_pic_"
+    private const val KEY_SIM2_KHATA = "sim2_khata"
+    private const val KEY_SIM2_RETAILER_VOLUME = "sim2_retailer_volume"
+    private const val KEY_SIM2_RETAILER_TXN_COUNT = "sim2_retailer_txn_count"
+    private const val KEY_SIM2_GOLD_GRAMS = "sim2_gold_grams"
+    private const val KEY_SIM2_DMT_BENEFICIARIES = "sim2_dmt_beneficiaries"
+    private const val KEY_SIM2_WALLET_BALANCE = "sim2_wallet_balance"
 
     private var prefs: SharedPreferences? = null
 
@@ -122,7 +133,10 @@ object UserSessionManager {
             insurancePolicySummary = UnitedMockData.insurancePolicySummary,
             scratchCards = UnitedMockData.scratchCards,
             disputeTickets = UnitedMockData.disputeTickets,
-            upiPin = "123456"
+            upiPin = "123456",
+            walletBalance = 14250.00,
+            isCardFrozen = false,
+            retailerMetrics = UnitedMockData.retailerMetrics
         )
 
         // Seed SIM 2 as a completely fresh account (Blank until onboarding completed)
@@ -166,11 +180,33 @@ object UserSessionManager {
             insurancePolicySummary = null,
             scratchCards = emptyList(),
             disputeTickets = emptyList(),
-            upiPin = null
+            upiPin = null,
+            walletBalance = 0.0,
+            isCardFrozen = false,
+            retailerMetrics = null
         )
 
         // Default to Arunjyoti's account initially
         _currentSession.value = accountsStore[SIM_1_PHONE]
+    }
+
+    fun toggleCardFreeze() {
+        val current = _currentSession.value ?: return
+        val updated = current.copy(isCardFrozen = !current.isCardFrozen)
+        accountsStore[current.phoneNumber.replace("+91 ", "")] = updated
+        _currentSession.value = updated
+    }
+
+    fun updateWalletBalance(delta: Double) {
+        val current = _currentSession.value ?: return
+        val newBal = (current.walletBalance + delta).coerceAtLeast(0.0)
+        val updated = current.copy(walletBalance = newBal)
+        val key = if (current.phoneNumber.contains(SIM_1_PHONE)) SIM_1_PHONE else SIM_2_PHONE
+        accountsStore[key] = updated
+        _currentSession.value = updated
+        if (key == SIM_2_PHONE) {
+            prefs?.edit()?.putFloat(KEY_SIM2_WALLET_BALANCE, newBal.toFloat())?.apply()
+        }
     }
 
     /**
@@ -200,10 +236,23 @@ object UserSessionManager {
 
         if (sim2Onboarded) {
             val existingSim2 = accountsStore[SIM_2_PHONE]!!
-            // Restore persistent SIM 2 transactions
+            // Restore persistent SIM 2 transactions, contacts, notifications, wallet, and retailer metrics
             val savedTxns = restoreSim2Transactions()
             val savedContacts = restoreSim2Contacts()
             val savedNotifs = restoreSim2Notifications()
+            val savedWallet = prefs?.getFloat(KEY_SIM2_WALLET_BALANCE, 0f)?.toDouble() ?: 0.0
+            val savedVol = prefs?.getFloat(KEY_SIM2_RETAILER_VOLUME, 0f)?.toDouble() ?: 0.0
+            val savedTxnsCount = prefs?.getInt(KEY_SIM2_RETAILER_TXN_COUNT, 0) ?: 0
+            val sim2Metrics = RetailerMetrics(
+                agentId = "HKL-AGT-98210",
+                merchantName = "New User Digital Kendra",
+                todayTxnCount = savedTxnsCount,
+                todayVolume = savedVol,
+                todayCommission = savedVol * 0.008,
+                walletBalance = savedWallet,
+                primarySettlementBank = "State Bank of India",
+                primarySettlementAccountMasked = "•••• 9821"
+            )
 
             accountsStore[SIM_2_PHONE] = existingSim2.copy(
                 isOnboarded = true,
@@ -221,7 +270,9 @@ object UserSessionManager {
                 ) else existingSim2.bankAccounts,
                 transactions = savedTxns,
                 chatContacts = savedContacts,
-                notifications = savedNotifs
+                notifications = savedNotifs,
+                walletBalance = savedWallet,
+                retailerMetrics = sim2Metrics
             )
         }
 
@@ -359,8 +410,18 @@ object UserSessionManager {
             loanEmiSummary = null,
             insurancePolicySummary = null,
             scratchCards = emptyList(),
-            disputeTickets = emptyList(),
-            upiPin = upiPin
+            upiPin = upiPin,
+            walletBalance = 0.0,
+            retailerMetrics = RetailerMetrics(
+                agentId = "HKL-AGT-98210",
+                merchantName = "New User Digital Kendra",
+                todayTxnCount = 0,
+                todayVolume = 0.0,
+                todayCommission = 0.0,
+                walletBalance = 0.0,
+                primarySettlementBank = "State Bank of India",
+                primarySettlementAccountMasked = "•••• 9821"
+            )
         )
 
         accountsStore[SIM_2_PHONE] = updatedSession
@@ -448,6 +509,35 @@ object UserSessionManager {
 
     fun getCurrentBankAccounts(): List<BankAccount> {
         return _currentSession.value?.bankAccounts ?: accountsStore[SIM_1_PHONE]!!.bankAccounts
+    }
+
+    fun getCurrentCreditCards(): List<com.unitedpay.core.model.UpiCreditCard> {
+        return if (isSim1Active) {
+            listOf(
+                com.unitedpay.core.model.UpiCreditCard(
+                    id = "cc_hdfc_tataneu",
+                    cardName = "HDFC Tata Neu Infinity RuPay",
+                    bankName = "HDFC Bank",
+                    cardNumberMasked = "•••• 4512",
+                    cardNetwork = "RuPay",
+                    totalLimit = 150000.0,
+                    availableLimit = 92400.0,
+                    outstandingAmount = 57600.0
+                ),
+                com.unitedpay.core.model.UpiCreditCard(
+                    id = "cc_icici_coral",
+                    cardName = "ICICI Coral RuPay Credit Card",
+                    bankName = "ICICI Bank",
+                    cardNumberMasked = "•••• 8823",
+                    cardNetwork = "RuPay",
+                    totalLimit = 75000.0,
+                    availableLimit = 68250.0,
+                    outstandingAmount = 6750.0
+                )
+            )
+        } else {
+            emptyList()
+        }
     }
 
     fun getCurrentCardDetails(): FintechCardDetails {
@@ -639,5 +729,265 @@ object UserSessionManager {
     private fun restoreSim2Contacts(): List<ChatContact> {
         // Can be expanded as user adds new contacts dynamically
         return emptyList()
+    }
+
+    val isSim1Active: Boolean
+        get() = _currentSession.value?.phoneNumber?.contains(SIM_1_PHONE) == true
+
+    fun getRetailerMetrics(): RetailerMetrics {
+        return if (isSim1Active) {
+            UnitedMockData.retailerMetrics
+        } else {
+            val vol = prefs?.getFloat(KEY_SIM2_RETAILER_VOLUME, 0f)?.toDouble() ?: 0.0
+            val count = prefs?.getInt(KEY_SIM2_RETAILER_TXN_COUNT, 0) ?: 0
+            val comm = vol * 0.008
+            RetailerMetrics(
+                agentId = "HKL-AGT-98210",
+                merchantName = "New User Digital Kendra",
+                todayTxnCount = count,
+                todayVolume = vol,
+                todayCommission = comm,
+                walletBalance = comm,
+                primarySettlementBank = "State Bank of India",
+                primarySettlementAccountMasked = "•••• 9821"
+            )
+        }
+    }
+
+    private val sim1KhataEntries = UnitedMockData.customerKhataEntries.toMutableList()
+    private var sim2KhataEntries: MutableList<CustomerKhataEntry>? = null
+
+    fun getKhataEntries(): List<CustomerKhataEntry> {
+        return if (isSim1Active) {
+            sim1KhataEntries
+        } else {
+            if (sim2KhataEntries == null) {
+                sim2KhataEntries = restoreSim2Khata().toMutableList()
+            }
+            sim2KhataEntries ?: emptyList()
+        }
+    }
+
+    fun addKhataEntry(
+        name: String,
+        phone: String,
+        amount: Double,
+        isDebit: Boolean,
+        note: String
+    ): CustomerKhataEntry {
+        val entry = CustomerKhataEntry(
+            id = "kht_${System.currentTimeMillis()}",
+            customerName = name,
+            phoneNumber = phone,
+            balanceAmount = amount,
+            isDebit = isDebit,
+            lastTxnDate = "Today",
+            lastNote = note
+        )
+        if (isSim1Active) {
+            sim1KhataEntries.add(0, entry)
+        } else {
+            if (sim2KhataEntries == null) {
+                sim2KhataEntries = restoreSim2Khata().toMutableList()
+            }
+            sim2KhataEntries!!.add(0, entry)
+            persistSim2Khata(sim2KhataEntries!!)
+
+            // Update volume & txn count
+            val curVol = prefs?.getFloat(KEY_SIM2_RETAILER_VOLUME, 0f)?.toDouble() ?: 0.0
+            val curCount = prefs?.getInt(KEY_SIM2_RETAILER_TXN_COUNT, 0) ?: 0
+            val newVol = curVol + amount
+            val newCount = curCount + 1
+            prefs?.edit()
+                ?.putFloat(KEY_SIM2_RETAILER_VOLUME, newVol.toFloat())
+                ?.putInt(KEY_SIM2_RETAILER_TXN_COUNT, newCount)
+                ?.apply()
+
+            // Update active session retailerMetrics
+            val updatedMetrics = getRetailerMetrics()
+            val current = _currentSession.value
+            if (current != null) {
+                val updated = current.copy(retailerMetrics = updatedMetrics)
+                accountsStore[SIM_2_PHONE] = updated
+                _currentSession.value = updated
+            }
+        }
+        return entry
+    }
+
+    fun settleRetailerToBank(amount: Double): SettlementReceipt {
+        val activeBank = getCurrentBankAccounts().firstOrNull()
+        val bankName = activeBank?.bankName ?: "State Bank of India"
+        val maskedAcc = activeBank?.accountNumberMasked ?: "•••• 9821"
+
+        if (!isSim1Active) {
+            val curVol = prefs?.getFloat(KEY_SIM2_RETAILER_VOLUME, 0f)?.toDouble() ?: 0.0
+            prefs?.edit()
+                ?.putFloat(KEY_SIM2_RETAILER_VOLUME, (curVol - (amount / 0.008)).coerceAtLeast(0.0).toFloat())
+                ?.apply()
+
+            val updatedMetrics = getRetailerMetrics()
+            val current = _currentSession.value
+            if (current != null) {
+                val updated = current.copy(retailerMetrics = updatedMetrics)
+                accountsStore[SIM_2_PHONE] = updated
+                _currentSession.value = updated
+            }
+        }
+
+        return SettlementReceipt(
+            settlementId = "SETTLE-HKL-" + (10000..99999).random(),
+            utr = "4259810" + (10000..99999).random(),
+            amount = amount,
+            toBank = bankName,
+            toAccountMasked = maskedAcc
+        )
+    }
+
+    fun getDigitalGoldGrams(): Double {
+        return if (isSim1Active) {
+            UnitedMockData.digitalGoldQuote.userVaultGrams
+        } else {
+            prefs?.getFloat(KEY_SIM2_GOLD_GRAMS, 0f)?.toDouble() ?: 0.0
+        }
+    }
+
+    fun addDigitalGold(grams: Double) {
+        if (!isSim1Active) {
+            val current = getDigitalGoldGrams()
+            val newGrams = current + grams
+            prefs?.edit()?.putFloat(KEY_SIM2_GOLD_GRAMS, newGrams.toFloat())?.apply()
+        }
+    }
+
+    private val sim1DmtBeneficiaries = UnitedMockData.dmtBeneficiaries.toMutableList()
+    private var sim2DmtBeneficiaries: MutableList<DmtBeneficiary>? = null
+
+    fun getDmtSenderProfile(): DmtSender {
+        return if (isSim1Active) {
+            UnitedMockData.dmtSenderProfile
+        } else {
+            DmtSender(
+                mobileNumber = "+91 $SIM_2_PHONE",
+                fullName = _currentSession.value?.fullName ?: "New User",
+                kycTier = "RBI Full KYC",
+                monthlyLimit = 25000.0,
+                usedLimit = 0.0
+            )
+        }
+    }
+
+    fun getDmtBeneficiaries(): List<DmtBeneficiary> {
+        return if (isSim1Active) {
+            sim1DmtBeneficiaries
+        } else {
+            if (sim2DmtBeneficiaries == null) {
+                sim2DmtBeneficiaries = restoreSim2DmtBeneficiaries().toMutableList()
+            }
+            sim2DmtBeneficiaries ?: emptyList()
+        }
+    }
+
+    fun addDmtBeneficiary(name: String, accountNo: String, ifsc: String, bankName: String): DmtBeneficiary {
+        val ben = DmtBeneficiary(
+            id = "ben_${System.currentTimeMillis()}",
+            name = name,
+            accountNumber = accountNo,
+            ifsc = ifsc,
+            bankName = bankName,
+            isVerified = true
+        )
+        if (isSim1Active) {
+            sim1DmtBeneficiaries.add(0, ben)
+        } else {
+            if (sim2DmtBeneficiaries == null) {
+                sim2DmtBeneficiaries = restoreSim2DmtBeneficiaries().toMutableList()
+            }
+            sim2DmtBeneficiaries!!.add(0, ben)
+            persistSim2DmtBeneficiaries(sim2DmtBeneficiaries!!)
+        }
+        return ben
+    }
+
+    private fun persistSim2Khata(entries: List<CustomerKhataEntry>) {
+        try {
+            val jsonArray = JSONArray()
+            for (e in entries) {
+                val obj = JSONObject().apply {
+                    put("id", e.id)
+                    put("customerName", e.customerName)
+                    put("phoneNumber", e.phoneNumber)
+                    put("balanceAmount", e.balanceAmount)
+                    put("isDebit", e.isDebit)
+                    put("lastTxnDate", e.lastTxnDate)
+                    put("lastNote", e.lastNote)
+                }
+                jsonArray.put(obj)
+            }
+            prefs?.edit()?.putString(KEY_SIM2_KHATA, jsonArray.toString())?.apply()
+        } catch (_: Exception) {}
+    }
+
+    private fun restoreSim2Khata(): List<CustomerKhataEntry> {
+        val jsonStr = prefs?.getString(KEY_SIM2_KHATA, null) ?: return emptyList()
+        val list = mutableListOf<CustomerKhataEntry>()
+        try {
+            val arr = JSONArray(jsonStr)
+            for (i in 0 until arr.length()) {
+                val obj = arr.getJSONObject(i)
+                list.add(
+                    CustomerKhataEntry(
+                        id = obj.getString("id"),
+                        customerName = obj.getString("customerName"),
+                        phoneNumber = obj.getString("phoneNumber"),
+                        balanceAmount = obj.getDouble("balanceAmount"),
+                        isDebit = obj.getBoolean("isDebit"),
+                        lastTxnDate = obj.optString("lastTxnDate", "Today"),
+                        lastNote = obj.optString("lastNote", "")
+                    )
+                )
+            }
+        } catch (_: Exception) {}
+        return list
+    }
+
+    private fun persistSim2DmtBeneficiaries(bens: List<DmtBeneficiary>) {
+        try {
+            val jsonArray = JSONArray()
+            for (b in bens) {
+                val obj = JSONObject().apply {
+                    put("id", b.id)
+                    put("name", b.name)
+                    put("accountNumber", b.accountNumber)
+                    put("ifsc", b.ifsc)
+                    put("bankName", b.bankName)
+                    put("isVerified", b.isVerified)
+                }
+                jsonArray.put(obj)
+            }
+            prefs?.edit()?.putString(KEY_SIM2_DMT_BENEFICIARIES, jsonArray.toString())?.apply()
+        } catch (_: Exception) {}
+    }
+
+    private fun restoreSim2DmtBeneficiaries(): List<DmtBeneficiary> {
+        val jsonStr = prefs?.getString(KEY_SIM2_DMT_BENEFICIARIES, null) ?: return emptyList()
+        val list = mutableListOf<DmtBeneficiary>()
+        try {
+            val arr = JSONArray(jsonStr)
+            for (i in 0 until arr.length()) {
+                val obj = arr.getJSONObject(i)
+                list.add(
+                    DmtBeneficiary(
+                        id = obj.getString("id"),
+                        name = obj.getString("name"),
+                        accountNumber = obj.getString("accountNumber"),
+                        ifsc = obj.getString("ifsc"),
+                        bankName = obj.getString("bankName"),
+                        isVerified = obj.optBoolean("isVerified", true)
+                    )
+                )
+            }
+        } catch (_: Exception) {}
+        return list
     }
 }

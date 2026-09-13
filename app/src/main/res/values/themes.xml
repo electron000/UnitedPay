@@ -3,4 +3,10 @@
     <style name="Theme.Material3.Light.NoActionBar" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">#0052FF</item>
     </style>
+
+    <style name="Theme.App.Splash" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:statusBarColor">#FFFFFF</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
 </resources>

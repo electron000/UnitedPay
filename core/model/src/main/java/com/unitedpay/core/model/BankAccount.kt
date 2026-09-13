@@ -8,7 +8,19 @@ data class BankAccount(
     val accountType: String = "SAVINGS",
     val isPrimary: Boolean = false,
     val balance: Double? = null,
-    val logoUrl: String? = null
+    val logoUrl: String? = null,
+    val linkedDebitCardMasked: String = "•••• 9024"
+)
+
+data class UpiCreditCard(
+    val id: String,
+    val cardName: String,
+    val bankName: String,
+    val cardNumberMasked: String,
+    val cardNetwork: String = "RuPay",
+    val totalLimit: Double,
+    val availableLimit: Double,
+    val outstandingAmount: Double
 )
 
 data class UserProfile(

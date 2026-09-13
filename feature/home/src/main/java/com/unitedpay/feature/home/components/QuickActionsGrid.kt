@@ -38,23 +38,23 @@ import com.unitedpay.core.designsystem.theme.UnitedWhite
 import com.unitedpay.core.designsystem.components.UnitedGlassCard
 
 /**
- * Quick Actions Floating Card matching the reference image exactly:
- * - Authentic iOS-style Frosted Glass Card with 28dp corner radius
+ * Quick Hub Floating Frosted Glass Card:
+ * - Authentic iOS-style Frosted Glass Card with 24dp corner radius
  * - Specular hairline highlight border and ambient blue-tinted drop shadow
  * - 2 rows x 4 columns with minimalist royal blue line vectors:
- *   Row 1: Crypto, Recharge, TV Cable, Electricity
- *   Row 2: Offers, Gift Cards, Rewards, More
- * - Zero emojis - 100% Vector geometry.
+ *   Row 1: Rewards, Offers, Gift Cards, Refer & Win
+ *   Row 2: Digital Gold, Digital Rupee, Mutual Funds, All Services
+ * - Zero emojis - 100% Vector geometry, 100% unique destinations.
  */
 @Composable
 fun QuickActionsGrid(
-    onCryptoClick: () -> Unit = {},
-    onRechargeClick: () -> Unit = {},
-    onTvCableClick: () -> Unit = {},
-    onElectricityClick: () -> Unit = {},
+    onRewardsClick: () -> Unit = {},
     onOffersClick: () -> Unit = {},
     onGiftCardsClick: () -> Unit = {},
-    onRewardsClick: () -> Unit = {},
+    onReferClick: () -> Unit = {},
+    onDigitalGoldClick: () -> Unit = {},
+    onDigitalRupeeClick: () -> Unit = {},
+    onMutualFundsClick: () -> Unit = {},
     onMoreClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -69,51 +69,24 @@ fun QuickActionsGrid(
                 .padding(horizontal = 14.dp, vertical = 12.dp)
         ) {
             Text(
-                text = "Quick Actions",
+                text = "Quick Hub",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF111827),
                 modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
             )
 
-            // Row 1
+            // Row 1: Rewards, Offers, Gift Cards, Refer & Win
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 QuickActionItem(
-                    icon = UnitedIcons.Crypto,
-                    label = "Crypto",
-                    onClick = onCryptoClick,
+                    icon = UnitedIcons.Rewards,
+                    label = "Rewards",
+                    onClick = onRewardsClick,
                     modifier = Modifier.weight(1f)
                 )
-                QuickActionItem(
-                    icon = UnitedIcons.Recharge,
-                    label = "Recharge",
-                    onClick = onRechargeClick,
-                    modifier = Modifier.weight(1f)
-                )
-                QuickActionItem(
-                    icon = UnitedIcons.TvCable,
-                    label = "TV Cable",
-                    onClick = onTvCableClick,
-                    modifier = Modifier.weight(1f)
-                )
-                QuickActionItem(
-                    icon = UnitedIcons.Electricity,
-                    label = "Electricity",
-                    onClick = onElectricityClick,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Row 2
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
                 QuickActionItem(
                     icon = UnitedIcons.Offers,
                     label = "Offers",
@@ -127,14 +100,41 @@ fun QuickActionsGrid(
                     modifier = Modifier.weight(1f)
                 )
                 QuickActionItem(
-                    icon = UnitedIcons.Rewards,
-                    label = "Rewards",
-                    onClick = onRewardsClick,
+                    icon = UnitedIcons.ReferEarn,
+                    label = "Refer & Win",
+                    onClick = onReferClick,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Row 2: Digital Gold, Digital Rupee, Mutual Funds, All Services
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                QuickActionItem(
+                    icon = UnitedIcons.DigitalGold,
+                    label = "Digital Gold",
+                    onClick = onDigitalGoldClick,
+                    modifier = Modifier.weight(1f)
+                )
+                QuickActionItem(
+                    icon = UnitedIcons.Crypto,
+                    label = "Digital Rupee",
+                    onClick = onDigitalRupeeClick,
+                    modifier = Modifier.weight(1f)
+                )
+                QuickActionItem(
+                    icon = UnitedIcons.MutualFunds,
+                    label = "Mutual Funds",
+                    onClick = onMutualFundsClick,
                     modifier = Modifier.weight(1f)
                 )
                 QuickActionItem(
                     icon = UnitedIcons.More,
-                    label = "More",
+                    label = "All Services",
                     onClick = onMoreClick,
                     modifier = Modifier.weight(1f)
                 )

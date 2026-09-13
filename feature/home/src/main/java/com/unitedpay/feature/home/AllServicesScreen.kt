@@ -10,9 +10,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,6 +32,8 @@ import com.unitedpay.core.designsystem.components.UnitedBottomBar
 import com.unitedpay.core.designsystem.components.UnitedIcons
 import com.unitedpay.core.designsystem.components.UnitedToast
 import com.unitedpay.core.designsystem.theme.*
+import com.unitedpay.feature.home.components.BadgeStyle
+import com.unitedpay.feature.home.components.FintechMicroBadge
 
 data class ServiceItem(
     val id: String,
@@ -81,8 +83,10 @@ fun AllServicesScreen(
             ServiceItem("insurance", "Insurance /\nLIC", "Recharge & Bill Payments", UnitedIcons.Insurance),
             ServiceItem("dth", "DTH\nRecharge", "Recharge & Bill Payments", UnitedIcons.TvCable),
             ServiceItem("gas", "Book LPG\nCylinder", "Recharge & Bill Payments", UnitedIcons.GasCylinder),
+            ServiceItem("education", "Education\nFees", "Recharge & Bill Payments", UnitedIcons.EducationFees),
+            ServiceItem("subscriptions", "OTT &\nMedia", "Recharge & Bill Payments", UnitedIcons.SubscriptionsOtt),
             ServiceItem("loan_emi", "Pay Loan\nEMI", "Recharge & Bill Payments", UnitedIcons.LoanEmi),
-            ServiceItem("all_bills", "My All\nBills", "Recharge & Bill Payments", Icons.Default.ReceiptLong)
+            ServiceItem("all_bills", "My All\nBills", "Recharge & Bill Payments", Icons.AutoMirrored.Filled.ReceiptLong)
         )
     }
 
@@ -97,6 +101,12 @@ fun AllServicesScreen(
 
     val bankingAndTransfers = remember {
         listOf(
+            ServiceItem("aeps", "AEPS\nCash Out", "Banking & Transfers", UnitedIcons.AepsFingerprint, badge = "AEPS"),
+            ServiceItem("micro_atm", "Micro-ATM\nmPOS", "Banking & Transfers", UnitedIcons.MicroAtm),
+            ServiceItem("dmt", "Money\nTransfer", "Banking & Transfers", UnitedIcons.DmtTransfer),
+            ServiceItem("bank_account", "Open Bank\nA/C", "Banking & Transfers", UnitedIcons.BankOpening),
+            ServiceItem("retailer", "Merchant\nBC Hub", "Banking & Transfers", UnitedIcons.CommissionChart),
+            ServiceItem("lending", "Vyapar\nCredit", "Banking & Transfers", UnitedIcons.LendingHand, badge = "₹2L"),
             ServiceItem("bank_transfer", "To Bank\nA/C", "Banking & Transfers", UnitedIcons.BankTransfer),
             ServiceItem("self_transfer", "To Self\nA/C", "Banking & Transfers", UnitedIcons.SelfTransfer),
             ServiceItem("check_balance", "Check\nBalance", "Banking & Transfers", UnitedIcons.BankTemple),
@@ -337,30 +347,39 @@ private fun ServiceGridItem(
         verticalArrangement = Arrangement.Center
     ) {
         Box(
-            modifier = Modifier.size(width = 54.dp, height = 40.dp),
+            modifier = Modifier.size(width = 54.dp, height = 42.dp),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = service.icon,
-                contentDescription = service.title.replace("\n", " "),
-                tint = service.tint,
-                modifier = Modifier.size(28.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .size(38.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFF1F5F9)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = service.icon,
+                    contentDescription = service.title.replace("\n", " "),
+                    tint = service.tint,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
 
             if (service.badge != null) {
+                val style = when {
+                    service.badge.contains("₹") -> BadgeStyle.RED_ROSE_GRADIENT
+                    service.badge.contains("Offers") || service.badge.contains("NEW") -> BadgeStyle.EMERALD_TINT
+                    service.badge == "AEPS" -> BadgeStyle.BLUE_TINT
+                    else -> BadgeStyle.AMBER_TINT
+                }
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .offset(x = 6.dp, y = (-4).dp)
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(Color(0xFF00C853))
-                        .padding(horizontal = 4.dp, vertical = 1.dp)
                 ) {
-                    Text(
+                    FintechMicroBadge(
                         text = service.badge,
-                        color = UnitedWhite,
-                        fontSize = 7.5.sp,
-                        fontWeight = FontWeight.ExtraBold
+                        style = style
                     )
                 }
             }
@@ -370,13 +389,13 @@ private fun ServiceGridItem(
 
         Text(
             text = service.title,
-            fontSize = 11.5.sp,
+            fontSize = 11.sp,
             fontWeight = FontWeight.Medium,
             color = Color(0xFF1E293B),
             textAlign = TextAlign.Center,
             maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            lineHeight = 14.sp
+            minLines = 2,
+            lineHeight = 13.5.sp
         )
     }
 }

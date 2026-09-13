@@ -35,7 +35,7 @@ import com.unitedpay.core.model.mock.UnitedMockData
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddMoneyScreen(onBackClick: () -> Unit) {
-    var liteBalance by remember { mutableStateOf(UnitedMockData.upiLiteBalance) }
+    var liteBalance by remember { mutableStateOf(com.unitedpay.core.model.session.UserSessionManager.getCurrentUpiLiteBalance()) }
 
     LaunchedEffect(Unit) {
         UnitedPayApi.client.banking.getUpiLiteBalance().collect { res ->

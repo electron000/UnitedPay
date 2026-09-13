@@ -76,17 +76,22 @@ class PaymentViewModel(
             delay(1500) // Simulating network & NPCI switch response
 
             val amountVal = _uiState.value.amountInput.toDoubleOrNull() ?: 0.0
+            val activeBank = com.unitedpay.core.model.session.UserSessionManager.getCurrentBankAccounts().firstOrNull()
+            val currentProfile = com.unitedpay.core.model.session.UserSessionManager.getCurrentProfile()
+
             val txn = UpiTransaction(
                 id = UUID.randomUUID().toString(),
                 utrNumber = (100000000000L..999999999999L).random().toString(),
                 payeeName = _uiState.value.payeeName.ifBlank { "Verified Merchant" },
                 payeeVpa = _uiState.value.payeeVpa.ifBlank { "merchant@unitedpay" },
+                payerName = currentProfile.fullName,
+                payerVpa = currentProfile.primaryVpa,
                 amount = amountVal,
                 timestamp = System.currentTimeMillis(),
                 status = PaymentStatus.SUCCESS,
                 type = TransactionType.DEBIT,
-                bankName = com.unitedpay.core.model.mock.UnitedMockData.linkedBankAccounts.firstOrNull()?.bankName ?: "State Bank of India",
-                bankAccountNumberMasked = com.unitedpay.core.model.mock.UnitedMockData.linkedBankAccounts.firstOrNull()?.accountNumberMasked ?: "•••• 4821",
+                bankName = activeBank?.bankName ?: "State Bank of India",
+                bankAccountNumberMasked = activeBank?.accountNumberMasked ?: "•••• 4821",
                 note = _uiState.value.note
             )
 

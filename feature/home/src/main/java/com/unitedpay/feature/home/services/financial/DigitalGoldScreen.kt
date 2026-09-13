@@ -47,7 +47,14 @@ fun DigitalGoldScreen(onBackClick: () -> Unit) {
         }
     }
 
-    val liveQuote = goldQuote ?: com.unitedpay.core.model.mock.UnitedMockData.digitalGoldQuote
+    val liveQuote = goldQuote ?: run {
+        val baseQuote = com.unitedpay.core.model.mock.UnitedMockData.digitalGoldQuote
+        val userGrams = com.unitedpay.core.model.session.UserSessionManager.getDigitalGoldGrams()
+        baseQuote.copy(
+            userVaultGrams = userGrams,
+            userVaultValue = userGrams * baseQuote.buyPricePerGram
+        )
+    }
     val quickAmounts = listOf("₹500", "₹1,000", "₹5,000", "₹10,000")
 
     Scaffold(
@@ -213,6 +220,9 @@ fun DigitalGoldScreen(onBackClick: () -> Unit) {
                 transactionCategory = "Digital Gold",
                 onPaymentCompleted = { utr ->
                     val amtVal = amountInput.toDoubleOrNull() ?: 1000.0
+                    val buyPrice = liveQuote.buyPricePerGram
+                    val boughtGrams = if (buyPrice > 0) amtVal / buyPrice else 0.0
+                    com.unitedpay.core.model.session.UserSessionManager.addDigitalGold(boughtGrams)
                     com.unitedpay.core.model.TransactionRepository.addTransaction(
                         com.unitedpay.core.model.UpiTransaction(
                             id = java.util.UUID.randomUUID().toString(),

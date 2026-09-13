@@ -47,6 +47,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.io.File
+import com.unitedpay.core.designsystem.components.BrandShield
 import com.unitedpay.core.designsystem.components.UnitedBottomBar
 import com.unitedpay.core.designsystem.components.UnitedIcons
 import com.unitedpay.core.designsystem.components.UnitedPayLogo
@@ -57,11 +58,7 @@ import com.unitedpay.core.designsystem.theme.UnitedLimeAccent
 import com.unitedpay.core.designsystem.theme.UnitedLimePill
 import com.unitedpay.core.designsystem.theme.UnitedSagePill
 import com.unitedpay.core.designsystem.theme.UnitedWhite
-import com.unitedpay.feature.home.components.CardPromotionSection
-import com.unitedpay.feature.home.components.MoneyControlSection
-import com.unitedpay.feature.home.components.ProfileDrawer
-import com.unitedpay.feature.home.components.QuickActionsGrid
-import com.unitedpay.feature.home.components.RegionalPromoBanner
+import com.unitedpay.feature.home.components.*
 
 /**
  * Main United Pay Dashboard faithfully conforming to Screenshot 2026-09-10 154655.png
@@ -100,12 +97,29 @@ fun HomeScreen(
     onNavigateToCheckBalance: () -> Unit = {},
     onNavigateToAutopay: () -> Unit = {},
     onNavigateToDigitalRupee: () -> Unit = {},
+    onNavigateToDigitalGold: () -> Unit = {},
     onNavigateToRequestMoney: () -> Unit = {},
     onNavigateToOffers: () -> Unit = {},
     onNavigateToRewards: () -> Unit = {},
     onNavigateToGiftCards: () -> Unit = {},
     onNavigateToMessages: () -> Unit = {},
-    onNavigateToNotifications: () -> Unit = {}
+    onNavigateToNotifications: () -> Unit = {},
+    onNavigateToAeps: (String) -> Unit = {},
+    onNavigateToMicroAtm: () -> Unit = {},
+    onNavigateToDmt: () -> Unit = {},
+    onNavigateToBankAccountOpening: () -> Unit = {},
+    onNavigateToLending: () -> Unit = {},
+    onNavigateToTravel: (String) -> Unit = {},
+    onNavigateToRetailerDashboard: () -> Unit = {},
+    onNavigateToLpgCylinder: () -> Unit = {},
+    onNavigateToEducationFees: () -> Unit = {},
+    onNavigateToSubscriptions: () -> Unit = {},
+    onNavigateToMutualFunds: () -> Unit = {},
+    onNavigateToInsurance: () -> Unit = {},
+    onNavigateToFastag: () -> Unit = {},
+    onNavigateToWaterBill: () -> Unit = {},
+    onNavigateToReferEarn: () -> Unit = onNavigateToAllServices,
+    onNavigateToToMobile: () -> Unit = { onNavigateToPayment("") }
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var isProfileDrawerOpen by remember { mutableStateOf(false) }
@@ -139,14 +153,14 @@ fun HomeScreen(
                 item {
                     HeaderGradientSection(
                         userName = uiState.userName.ifBlank { com.unitedpay.core.model.session.UserSessionManager.getCurrentProfile().userName },
-                        onPayToContactClick = { onNavigateToPayment("") },
+                        onPayToContactClick = onNavigateToToMobile,
                         onMenuClick = { isProfileDrawerOpen = true },
                         onMessagesClick = onNavigateToMessages,
                         onNotificationsClick = onNavigateToNotifications
                     )
                 }
 
-                // Section 2: Floating iOS Frosted Glass Quick Actions Card (2x4 Grid)
+                // Section 2: Floating iOS Frosted Glass Quick Hub Card (2x4 Grid)
                 item {
                     Box(
                         modifier = Modifier
@@ -154,19 +168,19 @@ fun HomeScreen(
                             .padding(horizontal = 16.dp)
                     ) {
                         QuickActionsGrid(
-                            onCryptoClick = onNavigateToDigitalRupee,
-                            onRechargeClick = onNavigateToRecharge,
-                            onTvCableClick = onNavigateToDth,
-                            onElectricityClick = onNavigateToElectricity,
+                            onRewardsClick = onNavigateToRewards,
                             onOffersClick = onNavigateToOffers,
                             onGiftCardsClick = onNavigateToGiftCards,
-                            onRewardsClick = onNavigateToRewards,
+                            onReferClick = onNavigateToReferEarn,
+                            onDigitalGoldClick = onNavigateToDigitalGold,
+                            onDigitalRupeeClick = onNavigateToDigitalRupee,
+                            onMutualFundsClick = onNavigateToMutualFunds,
                             onMoreClick = onNavigateToAllServices
                         )
                     }
                 }
 
-                // Section 3: Money Control Action Matrix (12 Actions across 3 Swipeable Pages)
+                // Section 3: Money Control Action Matrix (8 Pure UPI Actions across 2 Swipeable Pages)
                 item {
                     Box(
                         modifier = Modifier
@@ -174,26 +188,21 @@ fun HomeScreen(
                             .padding(horizontal = 16.dp)
                     ) {
                         MoneyControlSection(
-                            // Page 1: Primary Transfers
-                            onPayMoneyClick = { onNavigateToPayment("") },
+                            // Page 1: Primary Transfers & Balance
+                            onPayMoneyClick = onNavigateToToMobile,
+                            onBankTransferClick = onNavigateToBankTransfer,
+                            onSelfTransferClick = onNavigateToSelfTransfer,
+                            onCheckBalanceClick = onNavigateToCheckBalance,
+                            // Page 2: UPI Utilities & Mandates
                             onRequestMoneyClick = onNavigateToRequestMoney,
                             onAddMoneyClick = onNavigateToAddMoney,
-                            onCheckBalanceClick = onNavigateToCheckBalance,
-                            // Page 2: Banking & Key Utilities
-                            onSelfTransferClick = onNavigateToSelfTransfer,
-                            onBankTransferClick = onNavigateToBankTransfer,
-                            onRechargeClick = onNavigateToRecharge,
-                            onElectricityClick = onNavigateToElectricity,
-                            // Page 3: Bills & Digital Currency
-                            onTvCableClick = onNavigateToDth,
                             onCreditCardClick = onNavigateToCreditCard,
-                            onDigitalRupeeClick = onNavigateToDigitalRupee,
                             onAutopayClick = onNavigateToAutopay
                         )
                     }
                 }
 
-                // Section 4: Bank Account & 3D Virtual Card Showcase
+                // Section 4: Hookolu RuPay Platinum Card & Prepaid Wallet Showcase (Consolidated)
                 item {
                     Box(
                         modifier = Modifier
@@ -202,7 +211,8 @@ fun HomeScreen(
                     ) {
                         CardPromotionSection(
                             onAddCardClick = onNavigateToCards,
-                            onCardDetailsClick = onNavigateToCards
+                            onCardDetailsClick = onNavigateToCards,
+                            onAddMoneyClick = onNavigateToAddMoney
                         )
                     }
                 }
@@ -215,6 +225,99 @@ fun HomeScreen(
                             .padding(horizontal = 16.dp)
                     ) {
                         RegionalPromoBanner()
+                    }
+                }
+
+                // Section 6: Hookolu Core BC Banking & Inclusion Hub
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        AepsInclusionSection(
+                            onNavigateToAeps = onNavigateToAeps,
+                            onNavigateToMicroAtm = onNavigateToMicroAtm,
+                            onNavigateToDmt = onNavigateToDmt
+                        )
+                    }
+                }
+
+                // Section 7: Recharge & BBPS Bill Payments Grid (Directly Routed to Dedicated Services)
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        BbpsRechargeGridSection(
+                            onRechargeClick = onNavigateToRecharge,
+                            onElectricityClick = onNavigateToElectricity,
+                            onDthClick = onNavigateToDth,
+                            onGasClick = onNavigateToLpgCylinder,
+                            onWaterClick = onNavigateToWaterBill,
+                            onFastagClick = onNavigateToFastag,
+                            onEducationClick = onNavigateToEducationFees,
+                            onSubscriptionsClick = onNavigateToSubscriptions,
+                            onMoreClick = onNavigateToAllServices
+                        )
+                    }
+                }
+
+                // Section 9: Financial Services & Embedded Lending
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        FinancialLendingSection(
+                            onApplyCreditClick = onNavigateToLending,
+                            onOpenBankAccountClick = onNavigateToBankAccountOpening,
+                            onDigitalGoldClick = onNavigateToDigitalGold,
+                            onMutualFundsClick = onNavigateToMutualFunds,
+                            onInsuranceClick = onNavigateToInsurance
+                        )
+                    }
+                }
+
+                // Section 10: Travel & Transit Suite
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        TravelTransitSection(
+                            onBusClick = { onNavigateToTravel("BUS") },
+                            onFlightClick = { onNavigateToTravel("FLIGHT") },
+                            onTrainClick = { onNavigateToTravel("TRAIN") },
+                            onHotelClick = { onNavigateToTravel("HOTEL") }
+                        )
+                    }
+                }
+
+                // Section 11: Retailer & BC Merchant Operations Hub
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        RetailerMerchantSection(
+                            onDashboardClick = onNavigateToRetailerDashboard
+                        )
+                    }
+                }
+
+                // Section 12: Trust, Grievance & Regulatory Footer
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        TrustRegulatoryFooterSection()
                     }
                 }
 
@@ -257,52 +360,71 @@ private fun HeaderGradientSection(
             .padding(top = 12.dp, bottom = 8.dp, start = 16.dp, end = 16.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // Top App Bar Icons (4-Square Grid on left, Chat & Notification on right)
+            // Top App Bar Icons (Avatar + Logo on left, Chat & Notification on right)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Left User Profile Avatar (Opens Paytm-style Slide-over Profile & QR Drawer)
-                val currentSession by com.unitedpay.core.model.session.UserSessionManager.currentSession.collectAsState()
-                val avatarUrl = currentSession?.userProfile?.avatarUrl
-                val avatarBmp: ImageBitmap? = remember(avatarUrl) {
-                    if (avatarUrl != null && File(avatarUrl).exists()) {
-                        try {
-                            BitmapFactory.decodeFile(avatarUrl)?.asImageBitmap()
-                        } catch (e: Exception) {
-                            null
-                        }
-                    } else null
-                }
+                // Left: User Profile Avatar + Official Brand Logo (Paytm style beside avatar)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val currentSession by com.unitedpay.core.model.session.UserSessionManager.currentSession.collectAsState()
+                    val avatarUrl = currentSession?.userProfile?.avatarUrl
+                    val avatarBmp: ImageBitmap? = remember(avatarUrl) {
+                        if (avatarUrl != null && File(avatarUrl).exists()) {
+                            try {
+                                BitmapFactory.decodeFile(avatarUrl)?.asImageBitmap()
+                            } catch (e: Exception) {
+                                null
+                            }
+                        } else null
+                    }
 
-                Box(
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(CircleShape)
-                        .background(UnitedWhite.copy(alpha = 0.22f))
-                        .border(1.5.dp, UnitedWhite.copy(alpha = 0.70f), CircleShape)
-                        .clickable(onClick = onMenuClick),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (avatarBmp != null) {
-                        Image(
-                            bitmap = avatarBmp,
-                            contentDescription = "Profile Photo",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(UnitedWhite.copy(alpha = 0.22f))
+                            .border(1.5.dp, UnitedWhite.copy(alpha = 0.70f), CircleShape)
+                            .clickable(onClick = onMenuClick),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (avatarBmp != null) {
+                            Image(
+                                bitmap = avatarBmp,
+                                contentDescription = "Profile Photo",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            val initials = userName.split(" ")
+                                .mapNotNull { it.firstOrNull()?.toString() }
+                                .take(2)
+                                .joinToString("")
+                                .ifEmpty { "AC" }
+                            Text(
+                                text = initials,
+                                color = UnitedWhite,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    // Official UnitedPay Brand Logo on crisp white badge beside avatar (Paytm style)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        BrandShield(
+                            size = 32.dp,
+                            asCardBadge = true
                         )
-                    } else {
-                        val initials = userName.split(" ")
-                            .mapNotNull { it.firstOrNull()?.toString() }
-                            .take(2)
-                            .joinToString("")
-                            .ifEmpty { "AC" }
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = initials,
-                            color = UnitedWhite,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.ExtraBold
+                            text = "United Pay",
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = UnitedWhite
                         )
                     }
                 }

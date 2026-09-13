@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ইউনাইটেড পে</string>
+    <string name="brand_tagline">হুকোলুপে গ্রামীণ ও আধা-শহুরে আর্থিক সেবা</string>
+    <string name="banking_inclusion">ব্যাংকিং এবং আর্থিক অন্তর্ভুক্তি</string>
+    <string name="aeps_title">আধার সক্ষম পেমেন্ট ব্যবস্থা</string>
+    <string name="dmt_title">অভ্যন্তরীণ অর্থ স্থানান্তর</string>
+    <string name="micro_atm_title">মাইক্রো-এটিএম / এম-পস</string>
+    <string name="lending_title">হুকোলু ব্যবসায় ঋণ</string>
+    <string name="retailer_title">বণিক ও বিসি কেন্দ্র</string>
+</resources>

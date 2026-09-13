@@ -28,12 +28,13 @@ import com.unitedpay.core.model.mock.UnitedMockData
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BankTransferScreen(onBackClick: () -> Unit) {
-    val defaultBeneficiary = UnitedMockData.sampleBankBeneficiary
-    var accNo by remember { mutableStateOf(defaultBeneficiary.accountNumber) }
-    var confirmAccNo by remember { mutableStateOf(defaultBeneficiary.confirmAccountNumber) }
-    var ifsc by remember { mutableStateOf(defaultBeneficiary.ifscCode) }
-    var name by remember { mutableStateOf(defaultBeneficiary.beneficiaryName) }
-    var amount by remember { mutableStateOf(defaultBeneficiary.defaultAmount) }
+    val isSim1 = com.unitedpay.core.model.session.UserSessionManager.isSim1Active
+    val defaultBeneficiary = if (isSim1) UnitedMockData.sampleBankBeneficiary else null
+    var accNo by remember { mutableStateOf(defaultBeneficiary?.accountNumber ?: "") }
+    var confirmAccNo by remember { mutableStateOf(defaultBeneficiary?.confirmAccountNumber ?: "") }
+    var ifsc by remember { mutableStateOf(defaultBeneficiary?.ifscCode ?: "") }
+    var name by remember { mutableStateOf(defaultBeneficiary?.beneficiaryName ?: "") }
+    var amount by remember { mutableStateOf(defaultBeneficiary?.defaultAmount ?: "") }
     var showProcessing by remember { mutableStateOf(false) }
     var showMpinSheet by remember { mutableStateOf(false) }
 

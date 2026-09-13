@@ -257,7 +257,14 @@ object MockFintechApiClient : UnitedPayApiGateway {
         override fun getDigitalGoldQuote(): Flow<Resource<DigitalGoldQuote>> = flow {
             emit(Resource.Loading)
             delay(100)
-            emit(Resource.Success(UnitedMockData.digitalGoldQuote))
+            val grams = UserSessionManager.getDigitalGoldGrams()
+            val baseQuote = UnitedMockData.digitalGoldQuote
+            val vaultVal = grams * baseQuote.buyPricePerGram
+            val quote = baseQuote.copy(
+                userVaultGrams = grams,
+                userVaultValue = vaultVal
+            )
+            emit(Resource.Success(quote))
         }
 
         override fun getMutualFunds(): Flow<Resource<List<MutualFund>>> = flow {

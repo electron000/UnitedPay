@@ -55,6 +55,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.ContentCopy
@@ -64,7 +65,6 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -673,7 +673,7 @@ fun ProfileDrawer(
                             HorizontalDivider(color = Color(0xFFF1F5F9), thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
 
                             DrawerSettingItem(
-                                icon = Icons.Default.VolumeUp,
+                                icon = Icons.AutoMirrored.Filled.VolumeUp,
                                 title = "Soundbox Audio Settings",
                                 subtitle = "Voice confirmation in Assamese, Bengali, English",
                                 onClick = {
